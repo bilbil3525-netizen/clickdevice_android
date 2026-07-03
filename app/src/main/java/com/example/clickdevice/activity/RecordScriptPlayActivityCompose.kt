@@ -212,6 +212,8 @@ class RecordScriptPlayActivityCompose : ComponentActivity(), RecordScriptExecuto
 
     override fun isRun() = isRun
 
+    override fun context() = this
+
     override fun preDispatchGesture(x: Int, y: Int) {
         windowBBinding?.root?.post {
             windowBBinding?.tvWinB?.apply {

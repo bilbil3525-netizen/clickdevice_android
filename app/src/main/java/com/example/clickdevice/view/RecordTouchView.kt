@@ -11,6 +11,7 @@ import android.view.MotionEvent
 import android.view.View
 import com.example.clickdevice.bean.Bean
 import com.example.clickdevice.bean.RecordScriptCmd
+import com.example.clickdevice.helper.DeviceWindowMetricsProvider
 import com.example.clickdevice.helper.toDate
 
 class RecordTouchView : View {
@@ -90,6 +91,15 @@ class RecordTouchView : View {
                             data,
                             (SystemClock.uptimeMillis() - downTime).toInt(),
                             System.currentTimeMillis().toDate()
+                        )
+                        val metrics = DeviceWindowMetricsProvider.current(context)
+                        createGestureCMD.setRecordMetrics(
+                            metrics.width,
+                            metrics.height,
+                            metrics.insetLeft,
+                            metrics.insetTop,
+                            metrics.insetRight,
+                            metrics.insetBottom
                         )
                         onUpdate(createGestureCMD, scriptPath!!)
                     }

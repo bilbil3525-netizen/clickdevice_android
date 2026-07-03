@@ -9,6 +9,13 @@ public class RecordScriptCmd {
     public int delayed;
     public int duration;
     public String time="";
+    public int recordScreenWidth;
+    public int recordScreenHeight;
+    public int recordInsetLeft;
+    public int recordInsetTop;
+    public int recordInsetRight;
+    public int recordInsetBottom;
+    public int coordinateVersion;
 
     public enum  Type {
         Gesture, Delay
@@ -24,6 +31,23 @@ public class RecordScriptCmd {
         recordScriptCmd.duration = duration;
         recordScriptCmd.time=time;
         return recordScriptCmd;
+    }
+
+    public void setRecordMetrics(
+            int screenWidth,
+            int screenHeight,
+            int insetLeft,
+            int insetTop,
+            int insetRight,
+            int insetBottom
+    ) {
+        this.recordScreenWidth = screenWidth;
+        this.recordScreenHeight = screenHeight;
+        this.recordInsetLeft = insetLeft;
+        this.recordInsetTop = insetTop;
+        this.recordInsetRight = insetRight;
+        this.recordInsetBottom = insetBottom;
+        this.coordinateVersion = 1;
     }
 
     public static RecordScriptCmd createDelayCMD(int Delay,String time){

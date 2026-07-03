@@ -44,6 +44,8 @@ class KeyFloatWindowManager(var context: Context) {
     private val MAX_WINDOWS = 5
     private val PREFS_NAME = "key_float_window_prefs"
     private val KEY_SHOWN_IDS = "shown_window_ids"
+    private val POSITION_SCALE = 1_000_000
+    private val ENCODED_POSITION_THRESHOLD = 10_000
 
     private val floatWindows = SnapshotStateMap<Int, FloatWindowInfo>()
     private var isRunning = false
@@ -162,8 +164,9 @@ class KeyFloatWindowManager(var context: Context) {
                 
                 if (binding.windowX != 0 || binding.windowY != 0) {
                     updateLayoutParams {
-                        x = binding.windowX
-                        y = binding.windowY
+                        val position = decodeWindowPosition(binding.windowX, binding.windowY)
+                        x = position.first
+                        y = position.second
                     }
                 }
             }
@@ -237,9 +240,35 @@ class KeyFloatWindowManager(var context: Context) {
     fun getWindowXY(keyId: Int): Array<Int> {
         if (floatWindows.containsKey(keyId)) {
             val layoutParams = floatWindows[keyId]!!.smallWindowsHelper.mLayoutParams
-            return arrayOf(layoutParams.x, layoutParams.y)
+            val position = encodeWindowPosition(layoutParams.x, layoutParams.y)
+            return arrayOf(position.first, position.second)
         }
         return arrayOf(0, 0)
+    }
+
+    private fun encodeWindowPosition(x: Int, y: Int): Pair<Int, Int> {
+        val metrics = DeviceWindowMetricsProvider.current(context)
+        val halfWidth = (metrics.width / 2).coerceAtLeast(1)
+        val halfHeight = (metrics.height / 2).coerceAtLeast(1)
+        return Pair(
+            (x.toFloat() / halfWidth * POSITION_SCALE).toInt(),
+            (y.toFloat() / halfHeight * POSITION_SCALE).toInt()
+        )
+    }
+
+    private fun decodeWindowPosition(x: Int, y: Int): Pair<Int, Int> {
+        if (kotlin.math.abs(x) < ENCODED_POSITION_THRESHOLD &&
+            kotlin.math.abs(y) < ENCODED_POSITION_THRESHOLD
+        ) {
+            return Pair(x, y)
+        }
+        val metrics = DeviceWindowMetricsProvider.current(context)
+        val halfWidth = (metrics.width / 2).coerceAtLeast(1)
+        val halfHeight = (metrics.height / 2).coerceAtLeast(1)
+        return Pair(
+            (x.toFloat() / POSITION_SCALE * halfWidth).toInt(),
+            (y.toFloat() / POSITION_SCALE * halfHeight).toInt()
+        )
     }
 
 
@@ -508,6 +537,8 @@ class KeyScriptInterface(
     val isRunning: () -> Boolean,
 ) : RecordScriptExecutor.RecordScriptInterface, ScriptExecutor.ScriptInterFace {
     override fun isRun() = this.isRunning()
+
+    override fun context() = tvWinB.context
 
     val scriptRunParams: ScriptRunParams
         get() = floatWindowInfo.scriptRunParams

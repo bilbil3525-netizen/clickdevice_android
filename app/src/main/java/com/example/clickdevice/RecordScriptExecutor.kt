@@ -1,8 +1,10 @@
 package com.example.clickdevice
 
+import android.content.Context
 import android.graphics.Path
 import com.example.clickdevice.bean.Bean
 import com.example.clickdevice.bean.RecordScriptCmd
+import com.example.clickdevice.helper.DeviceWindowMetricsProvider
 
 class RecordScriptExecutor {
 
@@ -72,10 +74,11 @@ class RecordScriptExecutor {
                 return@apply
             }
 
-            val bean = recordScriptCmd.path[0]
+            val scaledPathData = scalePathIfNeeded(recordScriptCmd)
+            val bean = scaledPathData[0]
             preDispatchGesture(bean.x, bean.y)
             sleep(100)
-            val createPath = createPath(recordScriptCmd.path)
+            val createPath = createPath(scaledPathData)
             var duration = (recordScriptCmd.duration * delayCoefficient).toInt()
             if (duration < 10) {
                 duration = 10
@@ -101,10 +104,31 @@ class RecordScriptExecutor {
         return path
     }
 
+    private fun scalePathIfNeeded(recordScriptCmd: RecordScriptCmd): MutableList<Bean> {
+        val sourcePath = recordScriptCmd.path
+        val context = recordScriptInterface?.context()
+        if (
+            context == null ||
+            recordScriptCmd.coordinateVersion <= 0 ||
+            recordScriptCmd.recordScreenWidth <= 0 ||
+            recordScriptCmd.recordScreenHeight <= 0
+        ) {
+            return sourcePath
+        }
+        return sourcePath.map { point ->
+            Bean(
+                DeviceWindowMetricsProvider.scaleX(point.x, recordScriptCmd.recordScreenWidth, context),
+                DeviceWindowMetricsProvider.scaleY(point.y, recordScriptCmd.recordScreenHeight, context)
+            )
+        }.toMutableList()
+    }
+
 
     interface RecordScriptInterface {
 
         fun isRun(): Boolean
+
+        fun context(): Context? = null
 
         fun preDispatchGesture(x: Int, y: Int)
 

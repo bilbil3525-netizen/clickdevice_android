@@ -206,6 +206,7 @@ public class SmallWindowView extends LinearLayout {
     }
 
     private int lastWmParamsX, lastWmParamsY;
+    private boolean updateScheduled = false;
 
     private void updateViewPosition() {
 //        wmParams.gravity = Gravity.NO_GRAVITY;
@@ -220,8 +221,27 @@ public class SmallWindowView extends LinearLayout {
         wmParams.x = lastWmParamsX + dx;
         wmParams.y = lastWmParamsY + dy;
         Log.i("winParams", "lastWmParamsX:" + lastWmParamsX + "x : " + wmParams.x + "y :" + wmParams.y + "  dx:" + dx + "  dy :" + dy);
-        wm.updateViewLayout(this, wmParams);
+        scheduleWindowUpdate();
         //刷新显示
+    }
+
+    private void scheduleWindowUpdate() {
+        if (updateScheduled) {
+            return;
+        }
+        updateScheduled = true;
+        postOnAnimation(new Runnable() {
+            @Override
+            public void run() {
+                updateScheduled = false;
+                if (wm != null && wmParams != null && getWindowId() != null) {
+                    try {
+                        wm.updateViewLayout(SmallWindowView.this, wmParams);
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+        });
     }
 
     private boolean isHorizontalScreen(WindowManager windowManager) {

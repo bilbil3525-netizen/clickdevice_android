@@ -358,6 +358,8 @@ class RecordScriptActivityCompose : ComponentActivity(),
 
     override fun isRun(): Boolean = isRun
 
+    override fun context() = this
+
     override fun preDispatchGesture(x: Int, y: Int) {
         windowBtnBinding?.root?.post {
             windowBtnBinding?.tvWinB?.apply {
