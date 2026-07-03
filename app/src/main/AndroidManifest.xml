@@ -26,6 +26,7 @@
         android:allowBackup="true"
         android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/icon_app"
+        android:roundIcon="@mipmap/icon_app_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
