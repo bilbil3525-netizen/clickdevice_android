@@ -7,7 +7,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.TextUtils
 import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -35,7 +34,9 @@ import com.example.clickdevice.PowerKeyObserver
 import com.example.clickdevice.R
 import com.example.clickdevice.SmallWindowView
 import com.example.clickdevice.Util
+import com.example.clickdevice.helper.DevicePermissionHelper
 import com.example.clickdevice.helper.KeyFloatWindowManager
+import com.example.clickdevice.helper.PermissionStatus
 import com.example.clickdevice.helper.onClick
 import com.example.clickdevice.helper.setOnTouchClick
 import com.example.clickdevice.helper.smallWindowManager
@@ -71,9 +72,11 @@ class MainActivityCompose : ComponentActivity() {
         private set
 
     var showAccessibilityDialog by mutableStateOf(false)
+    private var permissionStatuses by mutableStateOf<List<PermissionStatus>>(emptyList())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        refreshPermissionStatuses()
         setContent {
             ClickDeviceTheme {
                 Surface(
@@ -90,6 +93,10 @@ class MainActivityCompose : ComponentActivity() {
                     showAccessibilityDialog = false
                     openAccessibility()
                 },
+                permissionStatuses = permissionStatuses,
+                onOpenOverlaySettings = { openOverlaySettings() },
+                onOpenBatterySettings = { openBatterySettings() },
+                onOpenAppSettings = { openAppSettings() },
                 onStartClickDevice = { startClickDevice() },
                 onOpenScriptList = { startScriptList() },
                 onOpenRecordScript = { startRecordScript() },
@@ -112,9 +119,42 @@ class MainActivityCompose : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        refreshPermissionStatuses()
+    }
+
+    private fun refreshPermissionStatuses() {
+        permissionStatuses = DevicePermissionHelper.collectStatuses(this)
+    }
+
     private fun openAccessibility() {
         try {
-            startActivity(Intent("android.settings.ACCESSIBILITY_SETTINGS"))
+            startActivity(DevicePermissionHelper.accessibilitySettingsIntent())
+        } catch (e: Exception) {
+            startActivity(Intent("android.settings.SETTINGS"))
+        }
+    }
+
+    private fun openOverlaySettings() {
+        try {
+            startActivity(DevicePermissionHelper.overlaySettingsIntent(this))
+        } catch (e: Exception) {
+            startActivity(Intent("android.settings.SETTINGS"))
+        }
+    }
+
+    private fun openBatterySettings() {
+        try {
+            startActivity(DevicePermissionHelper.batteryOptimizationIntent(this))
+        } catch (e: Exception) {
+            openAppSettings()
+        }
+    }
+
+    private fun openAppSettings() {
+        try {
+            startActivity(DevicePermissionHelper.appSettingsIntent(this))
         } catch (e: Exception) {
             startActivity(Intent("android.settings.SETTINGS"))
         }
@@ -405,9 +445,13 @@ fun MainScreen(
     isFloatingWindowShow: Boolean,
     clickCount: String,
     clickInterval: String,
+    permissionStatuses: List<PermissionStatus> = emptyList(),
     showAccessibilityDialog: Boolean = false,
     onDismissAccessibilityDialog: () -> Unit = {},
     onOpenAccessibility: () -> Unit,
+    onOpenOverlaySettings: () -> Unit = {},
+    onOpenBatterySettings: () -> Unit = {},
+    onOpenAppSettings: () -> Unit = {},
     onStartClickDevice: () -> Unit,
     onOpenScriptList: () -> Unit,
     onOpenRecordScript: () -> Unit,
@@ -429,14 +473,17 @@ fun MainScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Button(
-                onClick = onOpenAccessibility,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("开启(无障碍)辅助功能")
-            }
-
             val context = LocalContext.current
+
+            Text("设备与权限", style = MaterialTheme.typography.titleMedium)
+
+            PermissionStatusPanel(
+                statuses = permissionStatuses,
+                onOpenAccessibility = onOpenAccessibility,
+                onOpenOverlaySettings = onOpenOverlaySettings,
+                onOpenBatterySettings = onOpenBatterySettings,
+                onOpenAppSettings = onOpenAppSettings
+            )
 
             Text(
                 text = "通过adb命令授予权限后可自动开启无障碍模式：\nadb shell pm grant ${context.packageName} android.permission.WRITE_SECURE_SETTINGS",
@@ -545,6 +592,62 @@ fun MainScreen(
     }
 }
 
+@Composable
+private fun PermissionStatusPanel(
+    statuses: List<PermissionStatus>,
+    onOpenAccessibility: () -> Unit,
+    onOpenOverlaySettings: () -> Unit,
+    onOpenBatterySettings: () -> Unit,
+    onOpenAppSettings: () -> Unit
+) {
+    if (statuses.isEmpty()) {
+        Text("正在读取权限状态...", style = MaterialTheme.typography.bodySmall)
+        return
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        statuses.forEachIndexed { index, status ->
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(status.title, style = MaterialTheme.typography.titleSmall)
+                        Text(
+                            status.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            if (status.granted) "已就绪" else "需要配置",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = if (status.granted) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.error
+                            }
+                        )
+                    }
+                    TextButton(
+                        onClick = {
+                            when (index) {
+                                0 -> onOpenAccessibility()
+                                1 -> onOpenOverlaySettings()
+                                2 -> onOpenBatterySettings()
+                                else -> onOpenAppSettings()
+                            }
+                        }
+                    ) {
+                        Text(status.actionLabel)
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
@@ -553,7 +656,14 @@ fun MainScreenPreview() {
             isFloatingWindowShow = false,
             clickCount = "",
             clickInterval = "1000",
+            permissionStatuses = listOf(
+                PermissionStatus("无障碍服务", "用于执行点击和滑动", false, "去开启"),
+                PermissionStatus("悬浮窗", "用于显示控制按钮", true, "去授权")
+            ),
             onOpenAccessibility = {},
+            onOpenOverlaySettings = {},
+            onOpenBatterySettings = {},
+            onOpenAppSettings = {},
             onStartClickDevice = {},
             onOpenScriptList = {},
             onOpenRecordScript = {},
