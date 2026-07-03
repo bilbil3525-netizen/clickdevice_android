@@ -588,6 +588,12 @@ class KeyScriptInterface(
         }
     }
 
+    override fun onError(message: String) {
+        tvWinB.post {
+            Toast.makeText(tvWinB.context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun playNotTouch() {
         floatWindowInfo.smallWindowsHelper.setTouchEnable(false)
     }

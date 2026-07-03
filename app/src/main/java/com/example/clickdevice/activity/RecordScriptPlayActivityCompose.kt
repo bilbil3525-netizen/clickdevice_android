@@ -219,7 +219,7 @@ class RecordScriptPlayActivityCompose : ComponentActivity(), RecordScriptExecuto
             windowBBinding?.tvWinB?.apply {
                 val xc = if (xCoefficient in 0.25f..5.0f) xCoefficient else 1.0f
                 val yc = if (yCoefficient in 0.25f..5.0f) yCoefficient else 1.0f
-                if (calcPointRange(this, x*xc.toInt(), y*yc.toInt())) {
+                if (calcPointRange(this, (x * xc).toInt(), (y * yc).toInt())) {
                     playNotTouch()
                 }
             }
@@ -245,6 +245,12 @@ class RecordScriptPlayActivityCompose : ComponentActivity(), RecordScriptExecuto
     override fun endDispatchGesture() {
         windowBBinding?.root?.post {
             playCanTouch()
+        }
+    }
+
+    override fun onError(message: String) {
+        windowBBinding?.root?.post {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
     }
 

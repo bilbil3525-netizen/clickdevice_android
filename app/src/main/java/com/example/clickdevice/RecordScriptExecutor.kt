@@ -32,6 +32,7 @@ class RecordScriptExecutor {
                 }
             }
         } catch (e: Throwable) {
+            recordScriptInterface?.onError("录制脚本执行失败: ${e.message ?: "未知错误"}")
         }
 
     }
@@ -86,7 +87,9 @@ class RecordScriptExecutor {
             try {
                 dispatchGesture(position, createPath, duration)
                 sleep(duration.toLong())
-            }catch (e: Throwable){}
+            } catch (e: Throwable) {
+                onError("手势执行失败: ${e.message ?: "未知错误"}")
+            }
             sleep(100)
             endDispatchGesture()
         }
@@ -135,6 +138,8 @@ class RecordScriptExecutor {
         fun dispatchGesture(position: Int, path: Path, duration: Int)
 
         fun endDispatchGesture()
+
+        fun onError(message: String) {}
 
 
     }
