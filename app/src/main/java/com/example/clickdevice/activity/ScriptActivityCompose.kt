@@ -602,7 +602,7 @@ fun ScriptScreenPreview() {
 
 data class ScriptRunConfig(
     val interval: Int = 1000,
-    val count: Int = 0,
+    val count: Int = 1,
     val speed: Double = 1.0,
     val checkAppChange: Boolean = false,
     val xCoefficient: Float = 1.0f,
