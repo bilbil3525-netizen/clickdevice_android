@@ -72,6 +72,7 @@ class MainActivityCompose : ComponentActivity() {
         private set
 
     var showAccessibilityDialog by mutableStateOf(false)
+    var showComplianceDialog by mutableStateOf(false)
     private var permissionStatuses by mutableStateOf<List<PermissionStatus>>(emptyList())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,11 +89,14 @@ class MainActivityCompose : ComponentActivity() {
                 clickCount = clickCount,
                 clickInterval = clickInterval,
                 showAccessibilityDialog = showAccessibilityDialog,
+                showComplianceDialog = showComplianceDialog,
                 onDismissAccessibilityDialog = { showAccessibilityDialog = false },
+                onDismissComplianceDialog = { showComplianceDialog = false },
                 onOpenAccessibility = {
                     showAccessibilityDialog = false
                     openAccessibility()
                 },
+                onOpenCompliance = { showComplianceDialog = true },
                 permissionStatuses = permissionStatuses,
                 onOpenOverlaySettings = { openOverlaySettings() },
                 onOpenBatterySettings = { openBatterySettings() },
@@ -447,8 +451,11 @@ fun MainScreen(
     clickInterval: String,
     permissionStatuses: List<PermissionStatus> = emptyList(),
     showAccessibilityDialog: Boolean = false,
+    showComplianceDialog: Boolean = false,
     onDismissAccessibilityDialog: () -> Unit = {},
+    onDismissComplianceDialog: () -> Unit = {},
     onOpenAccessibility: () -> Unit,
+    onOpenCompliance: () -> Unit = {},
     onOpenOverlaySettings: () -> Unit = {},
     onOpenBatterySettings: () -> Unit = {},
     onOpenAppSettings: () -> Unit = {},
@@ -526,6 +533,13 @@ fun MainScreen(
                 onOpenBatterySettings = onOpenBatterySettings,
                 onOpenAppSettings = onOpenAppSettings
             )
+
+            OutlinedButton(
+                onClick = onOpenCompliance,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("权限与隐私说明")
+            }
 
             ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                 Column(
@@ -628,6 +642,26 @@ fun MainScreen(
             }
         )
     }
+
+    if (showComplianceDialog) {
+        AlertDialog(
+            onDismissRequest = onDismissComplianceDialog,
+            title = { Text("权限与隐私说明") },
+            text = {
+                Text(
+                    "无障碍服务：仅执行你主动创建或启动的点击、长按、滑动脚本。\n\n" +
+                        "悬浮窗：用于显示点位选择器、开始/停止按钮和按键悬浮控制。\n\n" +
+                        "后台运行：用于降低 HyperOS 清理服务导致脚本中断的概率。\n\n" +
+                        "数据处理：脚本与配置保存在本机，应用不上传脚本、屏幕内容、账号或支付数据。"
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = onDismissComplianceDialog) {
+                    Text("知道了")
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -698,7 +732,9 @@ fun MainScreenPreview() {
                 PermissionStatus("无障碍服务", "用于执行点击和滑动", false, "去开启"),
                 PermissionStatus("悬浮窗", "用于显示控制按钮", true, "去授权")
             ),
+            showComplianceDialog = false,
             onOpenAccessibility = {},
+            onOpenCompliance = {},
             onOpenOverlaySettings = {},
             onOpenBatterySettings = {},
             onOpenAppSettings = {},
