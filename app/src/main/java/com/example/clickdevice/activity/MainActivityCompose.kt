@@ -462,7 +462,7 @@ fun MainScreen(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("ClickDevice") })
+            TopAppBar(title = { Text("连点器工作台") })
         }
     ) { padding ->
         Column(
@@ -474,6 +474,48 @@ fun MainScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             val context = LocalContext.current
+            val accessibilityReady = permissionStatuses.firstOrNull { it.title == "无障碍服务" }?.granted == true
+            val overlayReady = permissionStatuses.firstOrNull { it.title == "悬浮窗" }?.granted == true
+
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text("运行状态", style = MaterialTheme.typography.titleMedium)
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        AssistChip(
+                            onClick = onOpenAccessibility,
+                            label = { Text(if (accessibilityReady) "无障碍已开启" else "无障碍未开启") },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = AssistChipDefaults.assistChipColors(
+                                labelColor = if (accessibilityReady) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.error
+                                }
+                            )
+                        )
+                        AssistChip(
+                            onClick = onOpenOverlaySettings,
+                            label = { Text(if (overlayReady) "悬浮窗已授权" else "悬浮窗待授权") },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = AssistChipDefaults.assistChipColors(
+                                labelColor = if (overlayReady) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.error
+                                }
+                            )
+                        )
+                    }
+                    Text(
+                        if (isFloatingWindowShow) "悬浮控制已显示，可在屏幕上选择点击位置。" else "打开连点器后，将显示点位选择器和开始按钮。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
 
             Text("设备与权限", style = MaterialTheme.typography.titleMedium)
 
@@ -485,9 +527,76 @@ fun MainScreen(
                 onOpenAppSettings = onOpenAppSettings
             )
 
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text("快速连点", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = "拖动点位选择器确定位置，再用悬浮按钮开始或停止。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    OutlinedTextField(
+                        value = clickCount,
+                        onValueChange = { onCountChange(it.filter { c -> c.isDigit() }) },
+                        label = { Text("点击次数") },
+                        placeholder = { Text("0为无限次") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = clickInterval,
+                        onValueChange = { onIntervalChange(it.filter { c -> c.isDigit() }) },
+                        label = { Text("时间间隔(ms)") },
+                        placeholder = { Text("最小10ms") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Button(
+                        onClick = onStartClickDevice,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = if (isFloatingWindowShow) ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error
+                        ) else ButtonDefaults.buttonColors()
+                    ) {
+                        Text(if (isFloatingWindowShow) "关闭悬浮控制" else "打开连点器")
+                    }
+                }
+            }
+
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text("脚本与按键", style = MaterialTheme.typography.titleMedium)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = onOpenScriptList, modifier = Modifier.weight(1f)) {
+                            Text("普通脚本")
+                        }
+                        OutlinedButton(onClick = onOpenRecordScript, modifier = Modifier.weight(1f)) {
+                            Text("录制脚本")
+                        }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = onOpenScriptGroup, modifier = Modifier.weight(1f)) {
+                            Text("自定义脚本")
+                        }
+                        OutlinedButton(onClick = onOpenKeyBinding, modifier = Modifier.weight(1f)) {
+                            Text("按键设置")
+                        }
+                    }
+                }
+            }
+
             Text(
-                text = "通过adb命令授予权限后可自动开启无障碍模式：\nadb shell pm grant ${context.packageName} android.permission.WRITE_SECURE_SETTINGS",
+                text = "ADB增强：adb shell pm grant ${context.packageName} android.permission.WRITE_SECURE_SETTINGS",
                 style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
@@ -498,78 +607,7 @@ fun MainScreen(
                         Toast.makeText(context, "已复制命令", Toast.LENGTH_SHORT).show()
                     }
             )
-
-            Divider()
-
-            Text("连点器", style = MaterialTheme.typography.titleMedium)
-
-            Text(
-                text = "点击下方按钮打开悬浮窗，拖动位置图标选择点击位置，再点击\"开始\"按钮执行连点",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = clickCount,
-                onValueChange = { onCountChange(it.filter { c -> c.isDigit() }) },
-                label = { Text("点击次数") },
-                placeholder = { Text("0为无限次") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = clickInterval,
-                onValueChange = { onIntervalChange(it.filter { c -> c.isDigit() }) },
-                label = { Text("时间间隔(ms)") },
-                placeholder = { Text("最小10ms") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Button(
-                onClick = onStartClickDevice,
-                modifier = Modifier.fillMaxWidth(),
-                colors = if (isFloatingWindowShow) ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
-                ) else ButtonDefaults.buttonColors()
-            ) {
-                Text(if (isFloatingWindowShow) "关闭悬浮窗" else "打开连点器")
-            }
-
-            Divider()
-
-            Button(
-                onClick = onOpenScriptList,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("普通脚本")
-            }
-
-            Button(
-                onClick = onOpenRecordScript,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("录制脚本")
-            }
-
-            Button(
-                onClick = onOpenScriptGroup,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("自定义脚本")
-            }
-
-            Divider()
-
-            Button(
-                onClick = onOpenKeyBinding,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("按键设置")
-            }
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 
