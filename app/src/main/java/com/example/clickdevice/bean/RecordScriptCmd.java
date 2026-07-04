@@ -8,6 +8,7 @@ public class RecordScriptCmd {
     public List<Bean> path;
     public int delayed;
     public int duration;
+    public int repeatCount = 1;
     public String time="";
     public int recordScreenWidth;
     public int recordScreenHeight;
@@ -29,6 +30,7 @@ public class RecordScriptCmd {
         recordScriptCmd.type = Type.Gesture;
         recordScriptCmd.path = path;
         recordScriptCmd.duration = duration;
+        recordScriptCmd.repeatCount = 1;
         recordScriptCmd.time=time;
         return recordScriptCmd;
     }
@@ -65,6 +67,7 @@ public class RecordScriptCmd {
                 ", path=" + path +
                 ", delayed=" + delayed +
                 ", duration=" + duration +
+                ", repeatCount=" + repeatCount +
                 '}';
     }
 }

@@ -25,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -415,6 +416,7 @@ fun RecordScriptEditScreen(
     var yCoeffText by remember { mutableStateOf("") }
     val commands = remember { viewModel!!.data }
     val owner = LocalLifecycleOwner.current
+    var editingRepeatCmd by remember { mutableStateOf<RecordScriptCmd?>(null) }
 
     LaunchedEffect(Unit) {
         MyLiveData.getInstance().with("RecordScriptEdit", RecordScriptBean::class.java)
@@ -551,6 +553,13 @@ fun RecordScriptEditScreen(
                                     .weight(1f),
                                 style = MaterialTheme.typography.bodyMedium
                             )
+                            if (cmd.type == RecordScriptCmd.Type.Gesture) {
+                                IconButton(onClick = {
+                                    editingRepeatCmd = cmd
+                                }) {
+                                    Icon(Icons.Default.Edit, contentDescription = "设置点击次数")
+                                }
+                            }
                             IconButton(onClick = {
                                 viewModel?.removeRecordScriptCmd(cmd)
                             }) {
@@ -564,15 +573,88 @@ fun RecordScriptEditScreen(
             }
         }
     }
+
+    editingRepeatCmd?.let { cmd ->
+        RepeatCountDialog(
+            cmd = cmd,
+            onDismiss = { editingRepeatCmd = null },
+            onConfirm = { repeatCount ->
+                cmd.repeatCount = repeatCount.coerceAtLeast(1)
+                viewModel?.updateRecordScriptCmd(cmd)
+                editingRepeatCmd = null
+            }
+        )
+    }
 }
 
 private fun getCmdDescribe(index: Int, cmd: RecordScriptCmd): String {
     val prefix = "$index.  "
     return when (cmd.type) {
-        RecordScriptCmd.Type.Gesture -> prefix + "手势执行" + cmd.duration + "ms" + " -${cmd.time}"
+        RecordScriptCmd.Type.Gesture -> {
+            val repeatText = if (cmd.repeatCount > 1) " ×${cmd.repeatCount}" else ""
+            prefix + "手势执行" + cmd.duration + "ms" + repeatText + " -${cmd.time}"
+        }
         RecordScriptCmd.Type.Delay -> prefix + "延时" + cmd.delayed + "ms" + " -${cmd.time}"
         else -> prefix + "未知命令" + " -" + " -${cmd.time}"
     }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun RepeatCountDialog(
+    cmd: RecordScriptCmd,
+    onDismiss: () -> Unit,
+    onConfirm: (Int) -> Unit
+) {
+    var repeatCountText by remember(cmd) {
+        mutableStateOf(cmd.repeatCount.coerceAtLeast(1).toString())
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("点击次数") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    "设置这条录制命令连续执行几次。1 次为单击，2 次为双击。",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(
+                        selected = repeatCountText == "1",
+                        onClick = { repeatCountText = "1" },
+                        label = { Text("单击") }
+                    )
+                    FilterChip(
+                        selected = repeatCountText == "2",
+                        onClick = { repeatCountText = "2" },
+                        label = { Text("双击") }
+                    )
+                }
+                OutlinedTextField(
+                    value = repeatCountText,
+                    onValueChange = { repeatCountText = it.filter { c -> c.isDigit() } },
+                    label = { Text("执行次数") },
+                    placeholder = { Text("1") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                onConfirm(repeatCountText.toIntOrNull()?.coerceAtLeast(1) ?: 1)
+            }) {
+                Text("确定")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消")
+            }
+        }
+    )
 }
 
 @Preview(showBackground = true)

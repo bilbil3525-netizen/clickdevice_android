@@ -44,6 +44,13 @@ class RecordScriptViewModel : ViewModel() {
         data.remove(recordScriptCmd)
     }
 
+    fun updateRecordScriptCmd(recordScriptCmd: RecordScriptCmd) {
+        val index = data.indexOf(recordScriptCmd)
+        if (index >= 0) {
+            data[index] = recordScriptCmd
+        }
+    }
+
     fun postLastTime() {
         lastTime = SystemClock.uptimeMillis()
     }

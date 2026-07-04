@@ -84,9 +84,18 @@ class RecordScriptExecutor {
             if (duration < 10) {
                 duration = 10
             }
+            val repeatCount = recordScriptCmd.repeatCount.coerceAtLeast(1)
             try {
-                dispatchGesture(position, createPath, duration)
-                sleep(duration.toLong())
+                repeat(repeatCount) { repeatIndex ->
+                    if (!isRun()) {
+                        return@repeat
+                    }
+                    dispatchGesture(position, createPath, duration)
+                    sleep(duration.toLong())
+                    if (repeatIndex < repeatCount - 1) {
+                        sleep(80)
+                    }
+                }
             } catch (e: Throwable) {
                 onError("手势执行失败: ${e.message ?: "未知错误"}")
             }
