@@ -984,15 +984,17 @@ private fun PermissionStatusPanel(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Text(
-                            status.statusText,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = if (status.isWarning) {
-                                MaterialTheme.colorScheme.error
-                            } else {
-                                MaterialTheme.colorScheme.primary
-                            }
-                        )
+                        if (status.showStatus) {
+                            Text(
+                                status.statusText,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = if (status.isWarning) {
+                                    MaterialTheme.colorScheme.error
+                                } else {
+                                    MaterialTheme.colorScheme.primary
+                                }
+                            )
+                        }
                     }
                     TextButton(
                         onClick = {
