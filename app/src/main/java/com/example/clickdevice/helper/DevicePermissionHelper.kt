@@ -15,7 +15,9 @@ data class PermissionStatus(
     val title: String,
     val description: String,
     val granted: Boolean,
-    val actionLabel: String
+    val actionLabel: String,
+    val statusText: String = if (granted) "已就绪" else "需要配置",
+    val isWarning: Boolean = !granted
 )
 
 object DevicePermissionHelper {
@@ -43,7 +45,9 @@ object DevicePermissionHelper {
                 title = "自启动",
                 description = "HyperOS 需在系统管家中手动允许，系统 API 无法直接读取状态",
                 granted = false,
-                actionLabel = "查看"
+                actionLabel = "查看",
+                statusText = "需手动确认",
+                isWarning = false
             )
         )
     }

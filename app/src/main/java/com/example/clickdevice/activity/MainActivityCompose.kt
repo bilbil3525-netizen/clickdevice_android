@@ -985,12 +985,12 @@ private fun PermissionStatusPanel(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            if (status.granted) "已就绪" else "需要配置",
+                            status.statusText,
                             style = MaterialTheme.typography.labelMedium,
-                            color = if (status.granted) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
+                            color = if (status.isWarning) {
                                 MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.primary
                             }
                         )
                     }
