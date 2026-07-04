@@ -7,10 +7,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.TextView
@@ -22,8 +20,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.RadioButtonChecked
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,9 +43,7 @@ import com.example.clickdevice.SmallWindowView
 import com.example.clickdevice.Util
 import com.example.clickdevice.helper.DevicePermissionHelper
 import com.example.clickdevice.helper.DeviceWindowMetricsProvider
-import com.example.clickdevice.helper.KeyFloatWindowManager
 import com.example.clickdevice.helper.PermissionStatus
-import com.example.clickdevice.helper.onClick
 import com.example.clickdevice.helper.setOnTouchClick
 import com.example.clickdevice.helper.smallWindowManager
 import com.example.clickdevice.ui.theme.ClickDeviceTheme
@@ -458,6 +463,12 @@ class MainActivityCompose : ComponentActivity() {
     }
 }
 
+private enum class MainTab(val title: String) {
+    Home("首页"),
+    Script("脚本"),
+    Mine("我的")
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
@@ -482,161 +493,72 @@ fun MainScreen(
     onCountChange: (String) -> Unit,
     onIntervalChange: (String) -> Unit
 ) {
+    var selectedTab by rememberSaveable { mutableStateOf(MainTab.Home) }
+    var showTutorialDialog by rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("连点器工作台") })
+            TopAppBar(title = { Text(selectedTab.title) })
+        },
+        bottomBar = {
+            NavigationBar {
+                NavigationBarItem(
+                    selected = selectedTab == MainTab.Home,
+                    onClick = { selectedTab = MainTab.Home },
+                    icon = { Icon(Icons.Default.Home, contentDescription = null) },
+                    label = { Text("首页") }
+                )
+                NavigationBarItem(
+                    selected = selectedTab == MainTab.Script,
+                    onClick = { selectedTab = MainTab.Script },
+                    icon = { Icon(Icons.Default.Description, contentDescription = null) },
+                    label = { Text("脚本") }
+                )
+                NavigationBarItem(
+                    selected = selectedTab == MainTab.Mine,
+                    onClick = { selectedTab = MainTab.Mine },
+                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
+                    label = { Text("我的") }
+                )
+            }
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            val context = LocalContext.current
-            val accessibilityReady = permissionStatuses.firstOrNull { it.title == "无障碍服务" }?.granted == true
-            val overlayReady = permissionStatuses.firstOrNull { it.title == "悬浮窗" }?.granted == true
+        val context = LocalContext.current
+        val accessibilityReady = permissionStatuses.firstOrNull { it.title == "无障碍服务" }?.granted == true
+        val overlayReady = permissionStatuses.firstOrNull { it.title == "悬浮窗" }?.granted == true
 
-            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Text("运行状态", style = MaterialTheme.typography.titleMedium)
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        AssistChip(
-                            onClick = onOpenAccessibility,
-                            label = { Text(if (accessibilityReady) "无障碍已开启" else "无障碍未开启") },
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = AssistChipDefaults.assistChipColors(
-                                labelColor = if (accessibilityReady) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.error
-                                }
-                            )
-                        )
-                        AssistChip(
-                            onClick = onOpenOverlaySettings,
-                            label = { Text(if (overlayReady) "悬浮窗已授权" else "悬浮窗待授权") },
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = AssistChipDefaults.assistChipColors(
-                                labelColor = if (overlayReady) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.error
-                                }
-                            )
-                        )
-                    }
-                    Text(
-                        if (isFloatingWindowShow) "悬浮控制已显示，可在屏幕上选择点击位置。" else "打开连点器后，将显示点位选择器和开始按钮。",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            Text("设备与权限", style = MaterialTheme.typography.titleMedium)
-
-            PermissionStatusPanel(
-                statuses = permissionStatuses,
+        when (selectedTab) {
+            MainTab.Home -> HomeTabContent(
+                modifier = Modifier.padding(padding),
+                isFloatingWindowShow = isFloatingWindowShow,
+                accessibilityReady = accessibilityReady,
+                overlayReady = overlayReady,
+                clickCount = clickCount,
+                clickInterval = clickInterval,
+                onOpenAccessibility = onOpenAccessibility,
+                onOpenOverlaySettings = onOpenOverlaySettings,
+                onStartClickDevice = onStartClickDevice,
+                onCountChange = onCountChange,
+                onIntervalChange = onIntervalChange,
+                onOpenTutorial = { showTutorialDialog = true }
+            )
+            MainTab.Script -> ScriptTabContent(
+                modifier = Modifier.padding(padding),
+                onOpenScriptList = onOpenScriptList,
+                onOpenRecordScript = onOpenRecordScript,
+                onOpenScriptGroup = onOpenScriptGroup,
+                onOpenKeyBinding = onOpenKeyBinding
+            )
+            MainTab.Mine -> MineTabContent(
+                modifier = Modifier.padding(padding),
+                packageName = context.packageName,
+                permissionStatuses = permissionStatuses,
                 onOpenAccessibility = onOpenAccessibility,
                 onOpenOverlaySettings = onOpenOverlaySettings,
                 onOpenBatterySettings = onOpenBatterySettings,
-                onOpenAppSettings = onOpenAppSettings
+                onOpenAppSettings = onOpenAppSettings,
+                onOpenCompliance = onOpenCompliance
             )
-
-            OutlinedButton(
-                onClick = onOpenCompliance,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("权限与隐私说明")
-            }
-
-            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text("快速连点", style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        text = "拖动点位选择器确定位置，再用悬浮按钮开始或停止。",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    OutlinedTextField(
-                        value = clickCount,
-                        onValueChange = { onCountChange(it.filter { c -> c.isDigit() }) },
-                        label = { Text("点击次数") },
-                        placeholder = { Text("0为无限次") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = clickInterval,
-                        onValueChange = { onIntervalChange(it.filter { c -> c.isDigit() }) },
-                        label = { Text("时间间隔(ms)") },
-                        placeholder = { Text("最小1ms") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Button(
-                        onClick = onStartClickDevice,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = if (isFloatingWindowShow) ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error
-                        ) else ButtonDefaults.buttonColors()
-                    ) {
-                        Text(if (isFloatingWindowShow) "关闭悬浮控制" else "打开连点器")
-                    }
-                }
-            }
-
-            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Text("脚本与按键", style = MaterialTheme.typography.titleMedium)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = onOpenScriptList, modifier = Modifier.weight(1f)) {
-                            Text("普通脚本")
-                        }
-                        OutlinedButton(onClick = onOpenRecordScript, modifier = Modifier.weight(1f)) {
-                            Text("录制脚本")
-                        }
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = onOpenScriptGroup, modifier = Modifier.weight(1f)) {
-                            Text("自定义脚本")
-                        }
-                        OutlinedButton(onClick = onOpenKeyBinding, modifier = Modifier.weight(1f)) {
-                            Text("按键设置")
-                        }
-                    }
-                }
-            }
-
-            Text(
-                text = "ADB增强：adb shell pm grant ${context.packageName} android.permission.WRITE_SECURE_SETTINGS",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        Util.copyText(
-                            "adb shell pm grant ${context.packageName} android.permission.WRITE_SECURE_SETTINGS",
-                            context
-                        )
-                        Toast.makeText(context, "已复制命令", Toast.LENGTH_SHORT).show()
-                    }
-            )
-            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 
@@ -658,25 +580,368 @@ fun MainScreen(
         )
     }
 
+    if (showTutorialDialog) {
+        QuickStartTutorialDialog(onDismiss = { showTutorialDialog = false })
+    }
+
     if (showComplianceDialog) {
-        AlertDialog(
-            onDismissRequest = onDismissComplianceDialog,
-            title = { Text("权限与隐私说明") },
-            text = {
+        ComplianceDialog(onDismiss = onDismissComplianceDialog)
+    }
+}
+
+@Composable
+private fun HomeTabContent(
+    modifier: Modifier = Modifier,
+    isFloatingWindowShow: Boolean,
+    accessibilityReady: Boolean,
+    overlayReady: Boolean,
+    clickCount: String,
+    clickInterval: String,
+    onOpenAccessibility: () -> Unit,
+    onOpenOverlaySettings: () -> Unit,
+    onStartClickDevice: () -> Unit,
+    onCountChange: (String) -> Unit,
+    onIntervalChange: (String) -> Unit,
+    onOpenTutorial: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text("运行状态", style = MaterialTheme.typography.titleMedium)
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    AssistChip(
+                        onClick = onOpenAccessibility,
+                        label = { Text(if (accessibilityReady) "无障碍已开启" else "无障碍未开启") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = AssistChipDefaults.assistChipColors(
+                            labelColor = if (accessibilityReady) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.error
+                            }
+                        )
+                    )
+                    AssistChip(
+                        onClick = onOpenOverlaySettings,
+                        label = { Text(if (overlayReady) "悬浮窗已授权" else "悬浮窗待授权") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = AssistChipDefaults.assistChipColors(
+                            labelColor = if (overlayReady) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.error
+                            }
+                        )
+                    )
+                }
                 Text(
-                    "无障碍服务：仅执行你主动创建或启动的点击、长按、滑动脚本。\n\n" +
-                        "悬浮窗：用于显示点位选择器、开始/停止按钮和按键悬浮控制。\n\n" +
-                        "后台运行：用于降低 HyperOS 清理服务导致脚本中断的概率。\n\n" +
-                        "数据处理：脚本与配置保存在本机，应用不上传脚本、屏幕内容、账号或支付数据。"
+                    if (isFloatingWindowShow) "悬浮控制已显示，可在屏幕上选择点击位置。" else "打开连点器后，将显示点位选择器和开始按钮。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-            },
-            confirmButton = {
-                TextButton(onClick = onDismissComplianceDialog) {
-                    Text("知道了")
+            }
+        }
+
+        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text("快速连点", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = "拖动点位选择器确定位置，再用悬浮按钮开始或停止。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                OutlinedTextField(
+                    value = clickCount,
+                    onValueChange = { onCountChange(it.filter { c -> c.isDigit() }) },
+                    label = { Text("点击次数") },
+                    placeholder = { Text("0为无限次") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = clickInterval,
+                    onValueChange = { onIntervalChange(it.filter { c -> c.isDigit() }) },
+                    label = { Text("时间间隔(ms)") },
+                    placeholder = { Text("最小1ms") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Button(
+                    onClick = onStartClickDevice,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = if (isFloatingWindowShow) ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ) else ButtonDefaults.buttonColors()
+                ) {
+                    Icon(Icons.Default.PlayArrow, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(if (isFloatingWindowShow) "关闭悬浮控制" else "打开连点器")
                 }
             }
+        }
+
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onOpenTutorial() }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Icon(Icons.Default.Security, contentDescription = null)
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("使用教程", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "查看快速连点的权限、点位和开始/停止步骤。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+    }
+}
+
+@Composable
+private fun ScriptTabContent(
+    modifier: Modifier = Modifier,
+    onOpenScriptList: () -> Unit,
+    onOpenRecordScript: () -> Unit,
+    onOpenScriptGroup: () -> Unit,
+    onOpenKeyBinding: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text("录制脚本", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "录制点击、长按和滑动动作，保存后可重复播放或放到悬浮按键中使用。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Button(onClick = onOpenRecordScript, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Default.RadioButtonChecked, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("进入录制脚本")
+                }
+            }
+        }
+
+        Text("更多脚本工具", style = MaterialTheme.typography.titleMedium)
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            ScriptToolButton("普通脚本", "手动编辑点击、延迟和滑动命令。", onOpenScriptList)
+            ScriptToolButton("自定义脚本", "把多个脚本动作组合成一组流程。", onOpenScriptGroup)
+            ScriptToolButton("按键设置", "创建悬浮按钮并绑定脚本。", onOpenKeyBinding)
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+    }
+}
+
+@Composable
+private fun MineTabContent(
+    modifier: Modifier = Modifier,
+    packageName: String,
+    permissionStatuses: List<PermissionStatus>,
+    onOpenAccessibility: () -> Unit,
+    onOpenOverlaySettings: () -> Unit,
+    onOpenBatterySettings: () -> Unit,
+    onOpenAppSettings: () -> Unit,
+    onOpenCompliance: () -> Unit
+) {
+    val context = LocalContext.current
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text("设备与权限", style = MaterialTheme.typography.titleMedium)
+
+        PermissionStatusPanel(
+            statuses = permissionStatuses,
+            onOpenAccessibility = onOpenAccessibility,
+            onOpenOverlaySettings = onOpenOverlaySettings,
+            onOpenBatterySettings = onOpenBatterySettings,
+            onOpenAppSettings = onOpenAppSettings
+        )
+
+        OutlinedButton(
+            onClick = onOpenCompliance,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.Security, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("权限与隐私说明")
+        }
+
+        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text("隐私声明", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "脚本与配置保存在本机，应用不上传脚本、屏幕内容、账号或支付数据。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text("权限用途", style = MaterialTheme.typography.titleMedium)
+                PermissionPurposeText("无障碍服务", "执行你主动创建或启动的点击、长按、滑动脚本。")
+                PermissionPurposeText("悬浮窗", "显示点位选择器、开始/停止按钮和按键悬浮控制。")
+                PermissionPurposeText("后台运行", "降低 HyperOS 清理服务导致脚本中断的概率。")
+            }
+        }
+
+        Text(
+            text = "ADB增强：adb shell pm grant $packageName android.permission.WRITE_SECURE_SETTINGS",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    Util.copyText(
+                        "adb shell pm grant $packageName android.permission.WRITE_SECURE_SETTINGS",
+                        context
+                    )
+                    Toast.makeText(context, "已复制命令", Toast.LENGTH_SHORT).show()
+                }
+        )
+
+        OutlinedButton(
+            onClick = onOpenAppSettings,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.Settings, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("打开应用设置")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+    }
+}
+
+@Composable
+private fun ScriptToolButton(
+    title: String,
+    description: String,
+    onClick: () -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                title,
+                style = MaterialTheme.typography.titleSmall
+            )
+            Text(
+                description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun PermissionPurposeText(title: String, description: String) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(title, style = MaterialTheme.typography.titleSmall)
+        Text(
+            description,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
+}
+
+@Composable
+private fun QuickStartTutorialDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("快速连点使用教程") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("1. 开启无障碍与悬浮窗权限。")
+                Text("2. 点击“打开连点器”显示点位选择器和开始按钮。")
+                Text("3. 拖动点位到目标位置。")
+                Text("4. 设置点击次数和间隔。")
+                Text("5. 点击悬浮“开始/停止”控制运行。")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("知道了")
+            }
+        }
+    )
+}
+
+@Composable
+private fun ComplianceDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("权限与隐私说明") },
+        text = {
+            Text(
+                "无障碍服务：仅执行你主动创建或启动的点击、长按、滑动脚本。\n\n" +
+                    "悬浮窗：用于显示点位选择器、开始/停止按钮和按键悬浮控制。\n\n" +
+                    "后台运行：用于降低 HyperOS 清理服务导致脚本中断的概率。\n\n" +
+                    "数据处理：脚本与配置保存在本机，应用不上传脚本、屏幕内容、账号或支付数据。"
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("知道了")
+            }
+        }
+    )
 }
 
 @Composable
