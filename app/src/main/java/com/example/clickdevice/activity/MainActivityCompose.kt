@@ -35,6 +35,7 @@ import com.example.clickdevice.R
 import com.example.clickdevice.SmallWindowView
 import com.example.clickdevice.Util
 import com.example.clickdevice.helper.DevicePermissionHelper
+import com.example.clickdevice.helper.DeviceWindowMetricsProvider
 import com.example.clickdevice.helper.KeyFloatWindowManager
 import com.example.clickdevice.helper.PermissionStatus
 import com.example.clickdevice.helper.onClick
@@ -181,13 +182,6 @@ class MainActivityCompose : ComponentActivity() {
     private fun initSmallViewLayout() {
         wm = smallWindowManager()
 
-        // 获取屏幕尺寸
-        val dm = resources.displayMetrics
-        val screenWidth = dm.widthPixels
-        val screenHeight = dm.heightPixels
-        val density = dm.density
-        val iconSizePx = (50 * density).toInt() // 50dp 转 px
-
         // 初始化位置选择悬浮窗 (window_a) - 初始位置居中
         windowView = LayoutInflater.from(this).inflate(R.layout.window_a, null) as SmallWindowView
         mLayoutParams = WindowManager.LayoutParams(
@@ -279,6 +273,8 @@ class MainActivityCompose : ComponentActivity() {
 
     private fun showFloatWindows() {
         if (!MyService.isStart()) {
+            refreshPermissionStatuses()
+            showAccessibilityDialog = true
             Toast.makeText(this, "请先开启辅助功能", Toast.LENGTH_LONG).show()
             return
         }
@@ -310,16 +306,14 @@ class MainActivityCompose : ComponentActivity() {
             isRun = true
             isRunning = true
 
-            val x = windowView?.actionUpX ?: 0
-            val y = windowView?.actionUpY ?: 0
-            val dm = resources.displayMetrics
-            val maxSide = maxOf(dm.heightPixels, dm.widthPixels)
-            if (x < 0 || x > maxSide || y < 0 || y > maxSide) {
+            val clickPoint = resolveQuickClickPoint()
+            if (clickPoint == null) {
                 isRun = false
                 isRunning = false
                 Toast.makeText(this, "请先拖动选择点击位置", Toast.LENGTH_SHORT).show()
                 return
             }
+            val (x, y) = clickPoint
             if (!MyService.isStart()) {
                 isRun = false
                 isRunning = false
@@ -391,6 +385,27 @@ class MainActivityCompose : ComponentActivity() {
             isRunning = false
             resetBtnText()
         }
+    }
+
+    private fun resolveQuickClickPoint(): Pair<Int, Int>? {
+        val selector = windowView ?: return null
+        val metrics = DeviceWindowMetricsProvider.current(this)
+        val rawX = selector.actionUpX
+        val rawY = selector.actionUpY
+        val location = IntArray(2)
+        selector.getLocationOnScreen(location)
+
+        val x = if (rawX > 0) rawX else location[0] + selector.width / 2
+        val y = if (rawY > 0) rawY else location[1] + selector.height / 2
+
+        val minX = metrics.insetLeft
+        val minY = metrics.insetTop
+        val maxX = metrics.width - metrics.insetRight
+        val maxY = metrics.height - metrics.insetBottom
+        if (x < minX || x > maxX || y < minY || y > maxY) {
+            return null
+        }
+        return x to y
     }
 
     private fun resetBtnText() {
