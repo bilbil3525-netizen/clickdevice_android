@@ -22,14 +22,11 @@ class ScriptInterfaceImpl(var isRunning:()-> Boolean) : ScriptExecutor.ScriptInt
             return true
         }
 
-        val count = time / 10
-        val t = time % 10
-        Thread.sleep(t)
-        for (i in 0 until count) {
+        for (i in 0 until time) {
             if (!isRun) {
                 return true
             }
-            Thread.sleep(10)
+            Thread.sleep(1)
         }
         return false
     }

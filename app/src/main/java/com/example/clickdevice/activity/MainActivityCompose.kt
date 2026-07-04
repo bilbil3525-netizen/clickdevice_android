@@ -331,7 +331,7 @@ class MainActivityCompose : ComponentActivity() {
             windowView?.setwmParamsFlags(24)
 
             val count = clickCount.toIntOrNull() ?: 0
-            val interval = (clickInterval.toIntOrNull() ?: 1000).coerceAtLeast(10)
+            val interval = (clickInterval.toIntOrNull() ?: 1000).coerceAtLeast(1)
 
             singleThreadExecutor.execute {
                 try {
@@ -347,11 +347,11 @@ class MainActivityCompose : ComponentActivity() {
                         var elapsed = 0
                         while (elapsed < interval && isRun) {
                             try {
-                                Thread.sleep(10)
+                                Thread.sleep(1)
                             } catch (_: InterruptedException) {
                                 break
                             }
-                            elapsed += 10
+                            elapsed += 1
                         }
                     }
                 } else {
@@ -362,11 +362,11 @@ class MainActivityCompose : ComponentActivity() {
                         var elapsed = 0
                         while (elapsed < interval && isRun) {
                             try {
-                                Thread.sleep(10)
+                                Thread.sleep(1)
                             } catch (_: InterruptedException) {
                                 break
                             }
-                            elapsed += 10
+                            elapsed += 1
                         }
                     }
                 }
@@ -580,7 +580,7 @@ fun MainScreen(
                         value = clickInterval,
                         onValueChange = { onIntervalChange(it.filter { c -> c.isDigit() }) },
                         label = { Text("时间间隔(ms)") },
-                        placeholder = { Text("最小10ms") },
+                        placeholder = { Text("最小1ms") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
