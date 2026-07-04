@@ -1,8 +1,6 @@
 package com.example.clickdevice.activity
 
 import android.content.Intent
-import android.graphics.drawable.shapes.RoundRectShape
-import android.graphics.drawable.shapes.Shape
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -64,13 +61,17 @@ fun LauncherScreen(onNavigateToMain: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Image(
-                painter = painterResource(id = R.mipmap.icon_app),
-                contentDescription = "App Icon",
-                modifier = Modifier
-                    .size(180.dp)
-                    .clip(RoundedCornerShape(20.dp))
-            )
+            Surface(
+                modifier = Modifier.size(180.dp),
+                shape = RoundedCornerShape(36.dp),
+                color = MaterialTheme.colorScheme.primary
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                    contentDescription = "App Icon",
+                    modifier = Modifier.padding(24.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
