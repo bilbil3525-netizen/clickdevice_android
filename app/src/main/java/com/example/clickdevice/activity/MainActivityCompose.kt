@@ -36,6 +36,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -814,9 +815,24 @@ private fun ScriptTabContent(
         Text("更多脚本工具", style = MaterialTheme.typography.titleMedium)
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            ScriptToolButton("普通脚本", "手动编辑点击、延迟和滑动命令。", onOpenScriptList)
-            ScriptToolButton("自定义脚本", "把多个脚本动作组合成一组流程。", onOpenScriptGroup)
-            ScriptToolButton("按键设置", "创建悬浮按钮并绑定脚本。", onOpenKeyBinding)
+            ScriptToolButton(
+                icon = Icons.Default.Description,
+                title = "普通脚本",
+                description = "手动编辑点击、延迟和滑动命令。",
+                onClick = onOpenScriptList
+            )
+            ScriptToolButton(
+                icon = Icons.Default.PlayArrow,
+                title = "自定义脚本",
+                description = "把多个脚本动作组合成一组流程。",
+                onClick = onOpenScriptGroup
+            )
+            ScriptToolButton(
+                icon = Icons.Default.Settings,
+                title = "按键设置",
+                description = "创建悬浮按钮并绑定脚本。",
+                onClick = onOpenKeyBinding
+            )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -917,6 +933,7 @@ private fun MineTabContent(
 
 @Composable
 private fun ScriptToolButton(
+    icon: ImageVector,
     title: String,
     description: String,
     onClick: () -> Unit
@@ -926,20 +943,34 @@ private fun ScriptToolButton(
             .fillMaxWidth()
             .clickable { onClick() }
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .padding(16.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 64.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                title,
-                style = MaterialTheme.typography.titleSmall
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
             )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Text(
+                    description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             Text(
-                description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                "打开",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
             )
         }
     }
