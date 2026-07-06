@@ -680,7 +680,7 @@ private fun HomeTabContent(
                     value = clickCount,
                     onValueChange = { onCountChange(it.filter { c -> c.isDigit() }) },
                     label = { Text("点击次数") },
-                    placeholder = { Text("0为无限次") },
+                    supportingText = { Text("输入 0 表示持续点击，直到手动停止。") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -689,7 +689,7 @@ private fun HomeTabContent(
                     value = clickInterval,
                     onValueChange = { onIntervalChange(it.filter { c -> c.isDigit() }) },
                     label = { Text("时间间隔(ms)") },
-                    placeholder = { Text("最小1ms") },
+                    supportingText = { Text("单位为毫秒，最小按 1ms 执行。") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
