@@ -95,9 +95,12 @@ class MainActivityCompose : ComponentActivity() {
                 val barColor = MaterialTheme.colorScheme.surface
                 val darkIcons = !androidx.compose.foundation.isSystemInDarkTheme()
                 SideEffect {
+                    window.statusBarColor = barColor.toArgb()
                     window.navigationBarColor = barColor.toArgb()
-                    WindowInsetsControllerCompat(window, window.decorView)
-                        .isAppearanceLightNavigationBars = darkIcons
+                    WindowInsetsControllerCompat(window, window.decorView).apply {
+                        isAppearanceLightStatusBars = darkIcons
+                        isAppearanceLightNavigationBars = darkIcons
+                    }
                 }
                 Surface(
                     modifier = Modifier.fillMaxSize(),
