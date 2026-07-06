@@ -36,8 +36,10 @@ import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Keyboard
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.ListAlt
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.PrivacyTip
@@ -1014,82 +1016,118 @@ private fun ThemeModePanel(
     selectedThemeMode: AppThemeMode,
     onThemeModeChange: (AppThemeMode) -> Unit
 ) {
+    var showAppearanceDialog by rememberSaveable { mutableStateOf(false) }
+
     ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 72.dp)
+                .clickable { showAppearanceDialog = true }
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Icon(
+                Icons.Default.Palette,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                Icon(
-                    Icons.Default.SettingsSuggest,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                Text("外观", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    selectedThemeMode.displayName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("界面颜色", style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        "选择黑、白，或跟随系统自动切换。",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+            }
+            Icon(
+                Icons.Default.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+
+    if (showAppearanceDialog) {
+        AlertDialog(
+            onDismissRequest = { showAppearanceDialog = false },
+            title = { Text("外观") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    ThemeModeOption(
+                        mode = AppThemeMode.Dark,
+                        selectedThemeMode = selectedThemeMode,
+                        icon = Icons.Default.DarkMode,
+                        onSelect = {
+                            onThemeModeChange(it)
+                            showAppearanceDialog = false
+                        }
+                    )
+                    ThemeModeOption(
+                        mode = AppThemeMode.Light,
+                        selectedThemeMode = selectedThemeMode,
+                        icon = Icons.Default.LightMode,
+                        onSelect = {
+                            onThemeModeChange(it)
+                            showAppearanceDialog = false
+                        }
+                    )
+                    ThemeModeOption(
+                        mode = AppThemeMode.System,
+                        selectedThemeMode = selectedThemeMode,
+                        icon = Icons.Default.SettingsSuggest,
+                        onSelect = {
+                            onThemeModeChange(it)
+                            showAppearanceDialog = false
+                        }
                     )
                 }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showAppearanceDialog = false }) {
+                    Text("取消")
+                }
             }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                ThemeModeChip(
-                    mode = AppThemeMode.Dark,
-                    selectedThemeMode = selectedThemeMode,
-                    icon = Icons.Default.DarkMode,
-                    onThemeModeChange = onThemeModeChange,
-                    modifier = Modifier.weight(1f)
-                )
-                ThemeModeChip(
-                    mode = AppThemeMode.Light,
-                    selectedThemeMode = selectedThemeMode,
-                    icon = Icons.Default.LightMode,
-                    onThemeModeChange = onThemeModeChange,
-                    modifier = Modifier.weight(1f)
-                )
-                ThemeModeChip(
-                    mode = AppThemeMode.System,
-                    selectedThemeMode = selectedThemeMode,
-                    icon = Icons.Default.SettingsSuggest,
-                    onThemeModeChange = onThemeModeChange,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
+        )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ThemeModeChip(
+private fun ThemeModeOption(
     mode: AppThemeMode,
     selectedThemeMode: AppThemeMode,
     icon: ImageVector,
-    onThemeModeChange: (AppThemeMode) -> Unit,
-    modifier: Modifier = Modifier
+    onSelect: (AppThemeMode) -> Unit
 ) {
-    FilterChip(
-        selected = selectedThemeMode == mode,
-        onClick = { onThemeModeChange(mode) },
-        label = { Text(mode.displayName) },
-        leadingIcon = {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(FilterChipDefaults.IconSize)
-            )
-        },
-        modifier = modifier.defaultMinSize(minHeight = 48.dp)
-    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 56.dp)
+            .clickable { onSelect(mode) }
+            .padding(horizontal = 4.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            mode.displayName,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f)
+        )
+        RadioButton(
+            selected = selectedThemeMode == mode,
+            onClick = { onSelect(mode) }
+        )
+    }
 }
 
 @Composable
