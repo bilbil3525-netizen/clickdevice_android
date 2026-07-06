@@ -1022,7 +1022,7 @@ private fun TutorialStepRow(index: Int, text: String) {
         verticalAlignment = Alignment.Top
     ) {
         Surface(
-            modifier = Modifier.size(28.dp),
+            modifier = Modifier.size(26.dp),
             shape = MaterialTheme.shapes.small,
             color = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -1030,7 +1030,7 @@ private fun TutorialStepRow(index: Int, text: String) {
             Box(contentAlignment = Alignment.Center) {
                 Text(
                     text = index.toString(),
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
         }
