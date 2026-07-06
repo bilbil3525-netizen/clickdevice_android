@@ -983,10 +983,11 @@ private fun ScriptToolButton(
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(horizontal = 14.dp, vertical = 10.dp)
                 .fillMaxWidth()
-                .defaultMinSize(minHeight = 64.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                .defaultMinSize(minHeight = 52.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = icon,
@@ -996,11 +997,11 @@ private fun ScriptToolButton(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     title,
-                    style = MaterialTheme.typography.titleSmall
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Text(
                     description,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
