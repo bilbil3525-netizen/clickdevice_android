@@ -1084,12 +1084,14 @@ private fun ComplianceDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = { Text("权限与隐私说明") },
         text = {
-            Text(
-                "无障碍服务：仅执行你主动创建或启动的点击、长按、滑动脚本。\n\n" +
-                    "悬浮窗：用于显示点位选择器、开始/停止按钮和按键悬浮控制。\n\n" +
-                    "后台运行：用于降低 HyperOS 清理服务导致脚本中断的概率。\n\n" +
-                    "数据处理：脚本与配置保存在本机，应用不上传脚本、屏幕内容、账号或支付数据。"
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                ComplianceSectionTitle("权限用途")
+                ComplianceInfoRow("无障碍服务", "仅执行你主动创建或启动的点击、长按、滑动脚本。")
+                ComplianceInfoRow("悬浮窗", "显示点位选择器、开始/停止按钮和按键悬浮控制。")
+                ComplianceInfoRow("后台运行", "降低 HyperOS 清理服务导致脚本中断的概率。")
+                ComplianceSectionTitle("数据处理")
+                ComplianceInfoRow("本机保存", "脚本与配置保存在本机，应用不上传脚本、屏幕内容、账号或支付数据。")
+            }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
@@ -1097,6 +1099,42 @@ private fun ComplianceDialog(onDismiss: () -> Unit) {
             }
         }
     )
+}
+
+@Composable
+private fun ComplianceSectionTitle(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.primary
+    )
+}
+
+@Composable
+private fun ComplianceInfoRow(title: String, description: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        Icon(
+            Icons.Default.CheckCircle,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp)
+        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(title, style = MaterialTheme.typography.titleSmall)
+            Text(
+                description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
 }
 
 @Composable
