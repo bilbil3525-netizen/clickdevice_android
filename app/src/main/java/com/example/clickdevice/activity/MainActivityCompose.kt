@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Home
@@ -69,7 +70,7 @@ class MainActivityCompose : ComponentActivity() {
     private var wm: WindowManager? = null
     private var mLayoutParams: WindowManager.LayoutParams? = null
     private var btnLayoutParams: WindowManager.LayoutParams? = null
-    private var isShow = false
+    private var isShow by mutableStateOf(false)
 
     // 主线程 Handler，用于更新 UI
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -701,7 +702,10 @@ private fun HomeTabContent(
                         containerColor = MaterialTheme.colorScheme.error
                     ) else ButtonDefaults.buttonColors()
                 ) {
-                    Icon(Icons.Default.PlayArrow, contentDescription = null)
+                    Icon(
+                        if (isFloatingWindowShow) Icons.Default.Close else Icons.Default.PlayArrow,
+                        contentDescription = null
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(if (isFloatingWindowShow) "关闭悬浮控制" else "打开连点器")
                 }
