@@ -633,29 +633,23 @@ private fun HomeTabContent(
             ) {
                 Text("运行状态", style = MaterialTheme.typography.titleMedium)
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    AssistChip(
-                        onClick = onOpenAccessibility,
-                        label = { Text(if (accessibilityReady) "无障碍已开启" else "无障碍未开启") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = AssistChipDefaults.assistChipColors(
-                            labelColor = if (accessibilityReady) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.error
-                            }
-                        )
+                    HomePermissionStatusRow(
+                        title = "无障碍服务",
+                        ready = accessibilityReady,
+                        readyText = "已开启",
+                        pendingText = "未开启",
+                        readyAction = "查看",
+                        pendingAction = "去开启",
+                        onClick = onOpenAccessibility
                     )
-                    AssistChip(
-                        onClick = onOpenOverlaySettings,
-                        label = { Text(if (overlayReady) "悬浮窗已授权" else "悬浮窗待授权") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = AssistChipDefaults.assistChipColors(
-                            labelColor = if (overlayReady) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.error
-                            }
-                        )
+                    HomePermissionStatusRow(
+                        title = "悬浮窗",
+                        ready = overlayReady,
+                        readyText = "已授权",
+                        pendingText = "待授权",
+                        readyAction = "查看",
+                        pendingAction = "去授权",
+                        onClick = onOpenOverlaySettings
                     )
                 }
                 Text(
@@ -733,6 +727,53 @@ private fun HomeTabContent(
         }
 
         Spacer(modifier = Modifier.height(12.dp))
+    }
+}
+
+@Composable
+private fun HomePermissionStatusRow(
+    title: String,
+    ready: Boolean,
+    readyText: String,
+    pendingText: String,
+    readyAction: String,
+    pendingAction: String,
+    onClick: () -> Unit
+) {
+    val stateColor = if (ready) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.error
+    }
+    val stateIcon = if (ready) Icons.Default.CheckCircle else Icons.Default.ErrorOutline
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 56.dp)
+            .clickable { onClick() }
+            .padding(horizontal = 4.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Icon(
+            imageVector = stateIcon,
+            contentDescription = null,
+            tint = stateColor
+        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.titleSmall)
+            Text(
+                if (ready) readyText else pendingText,
+                style = MaterialTheme.typography.bodySmall,
+                color = stateColor
+            )
+        }
+        Text(
+            if (ready) readyAction else pendingAction,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
+        )
     }
 }
 
