@@ -226,7 +226,7 @@ fun LauncherScriptScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(id = R.mipmap.icon_app),
+                painter = painterResource(id = R.drawable.icon_app_ai_candidate),
                 contentDescription = "App Icon",
                 modifier = Modifier
                     .size(180.dp)

@@ -67,7 +67,7 @@ fun LauncherScreen(onNavigateToMain: () -> Unit) {
                 color = MaterialTheme.colorScheme.primary
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                    painter = painterResource(id = R.drawable.icon_app_ai_candidate),
                     contentDescription = "App Icon",
                     modifier = Modifier.padding(24.dp)
                 )
