@@ -21,17 +21,28 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessibilityNew
+import androidx.compose.material.icons.filled.AccountTree
+import androidx.compose.material.icons.filled.AppSettingsAlt
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.BatterySaver
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Keyboard
+import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.RadioButtonChecked
+import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -640,6 +651,7 @@ private fun HomeTabContent(
                 Text("运行状态", style = MaterialTheme.typography.titleMedium)
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     HomePermissionStatusRow(
+                        icon = Icons.Default.AccessibilityNew,
                         title = "无障碍服务",
                         ready = accessibilityReady,
                         readyText = "已开启",
@@ -649,6 +661,7 @@ private fun HomeTabContent(
                         onClick = onOpenAccessibility
                     )
                     HomePermissionStatusRow(
+                        icon = Icons.Default.TouchApp,
                         title = "悬浮窗",
                         ready = overlayReady,
                         readyText = "已授权",
@@ -723,7 +736,7 @@ private fun HomeTabContent(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Icon(Icons.Default.Security, contentDescription = null)
+                Icon(Icons.Default.HelpOutline, contentDescription = null)
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text("使用教程", style = MaterialTheme.typography.titleMedium)
                     Text(
@@ -741,6 +754,7 @@ private fun HomeTabContent(
 
 @Composable
 private fun HomePermissionStatusRow(
+    icon: ImageVector,
     title: String,
     ready: Boolean,
     readyText: String,
@@ -754,8 +768,6 @@ private fun HomePermissionStatusRow(
     } else {
         MaterialTheme.colorScheme.error
     }
-    val stateIcon = if (ready) Icons.Default.CheckCircle else Icons.Default.ErrorOutline
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -765,7 +777,7 @@ private fun HomePermissionStatusRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Icon(
-            imageVector = stateIcon,
+            imageVector = icon,
             contentDescription = null,
             tint = stateColor
         )
@@ -813,7 +825,7 @@ private fun ScriptTabContent(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Button(onClick = onOpenRecordScript, modifier = Modifier.fillMaxWidth()) {
-                    Icon(Icons.Default.RadioButtonChecked, contentDescription = null)
+                    Icon(Icons.Default.TouchApp, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("进入录制脚本")
                 }
@@ -824,19 +836,19 @@ private fun ScriptTabContent(
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             ScriptToolButton(
-                icon = Icons.Default.Description,
+                icon = Icons.Default.ListAlt,
                 title = "普通脚本",
                 description = "手动编辑点击、延迟和滑动命令。",
                 onClick = onOpenScriptList
             )
             ScriptToolButton(
-                icon = Icons.Default.PlayArrow,
+                icon = Icons.Default.AccountTree,
                 title = "自定义脚本",
                 description = "把多个脚本动作组合成一组流程。",
                 onClick = onOpenScriptGroup
             )
             ScriptToolButton(
-                icon = Icons.Default.Settings,
+                icon = Icons.Default.Keyboard,
                 title = "按键设置",
                 description = "创建悬浮按钮并绑定脚本。",
                 onClick = onOpenKeyBinding
@@ -885,7 +897,7 @@ private fun MineTabContent(
             onClick = onOpenCompliance,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(Icons.Default.Security, contentDescription = null)
+            Icon(Icons.Default.PrivacyTip, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
             Text("权限与隐私说明")
         }
@@ -929,7 +941,7 @@ private fun MineTabContent(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Icon(
-                    Icons.Default.Settings,
+                    Icons.Default.Terminal,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -964,7 +976,7 @@ private fun MineTabContent(
             onClick = onOpenAppSettings,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(Icons.Default.Settings, contentDescription = null)
+            Icon(Icons.Default.AppSettingsAlt, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
             Text("打开应用设置")
         }
@@ -1090,11 +1102,11 @@ private fun ComplianceDialog(onDismiss: () -> Unit) {
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 ComplianceSectionTitle("权限用途")
-                ComplianceInfoRow("无障碍服务", "仅执行你主动创建或启动的点击、长按、滑动脚本。")
-                ComplianceInfoRow("悬浮窗", "显示点位选择器、开始/停止按钮和按键悬浮控制。")
-                ComplianceInfoRow("后台运行", "降低 HyperOS 清理服务导致脚本中断的概率。")
+                ComplianceInfoRow(Icons.Default.AccessibilityNew, "无障碍服务", "仅执行你主动创建或启动的点击、长按、滑动脚本。")
+                ComplianceInfoRow(Icons.Default.TouchApp, "悬浮窗", "显示点位选择器、开始/停止按钮和按键悬浮控制。")
+                ComplianceInfoRow(Icons.Default.BatterySaver, "后台运行", "降低 HyperOS 清理服务导致脚本中断的概率。")
                 ComplianceSectionTitle("数据处理")
-                ComplianceInfoRow("本机保存", "脚本与配置保存在本机，应用不上传脚本、屏幕内容、账号或支付数据。")
+                ComplianceInfoRow(Icons.Default.Storage, "本机保存", "脚本与配置保存在本机，应用不上传脚本、屏幕内容、账号或支付数据。")
             }
         },
         confirmButton = {
@@ -1115,14 +1127,14 @@ private fun ComplianceSectionTitle(title: String) {
 }
 
 @Composable
-private fun ComplianceInfoRow(title: String, description: String) {
+private fun ComplianceInfoRow(icon: ImageVector, title: String, description: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.Top
     ) {
         Icon(
-            Icons.Default.CheckCircle,
+            icon,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(20.dp)
