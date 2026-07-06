@@ -13,6 +13,7 @@ public class ScriptCmdBean {
     private int delayed;
     private int duration;
     private int frequency;
+    private int repeatCount = 1;
     private int x0;
     private int y0;
     private int x1;
@@ -81,6 +82,7 @@ public class ScriptCmdBean {
         scriptCmdBean.setY0(y0);
         scriptCmdBean.setDuration(duration);
         scriptCmdBean.setDelayed(delayed);
+        scriptCmdBean.setRepeatCount(1);
         scriptCmdBean.setContent(scriptCmdBean.info());
         return scriptCmdBean;
     }
@@ -94,6 +96,7 @@ public class ScriptCmdBean {
         scriptCmdBean.setY1(y1);
         scriptCmdBean.setDuration(duration);
         scriptCmdBean.setDelayed(delayed);
+        scriptCmdBean.setRepeatCount(1);
         scriptCmdBean.setContent(scriptCmdBean.info());
         return scriptCmdBean;
     }
@@ -107,6 +110,7 @@ public class ScriptCmdBean {
         scriptCmdBean.setY1(y1);
         scriptCmdBean.setDuration(duration);
         scriptCmdBean.setDelayed(delayed);
+        scriptCmdBean.setRepeatCount(1);
         scriptCmdBean.setContent(scriptCmdBean.info());
         return scriptCmdBean;
     }
@@ -121,6 +125,14 @@ public class ScriptCmdBean {
 
     public void setFrequency(int frequency) {
         this.frequency = frequency;
+    }
+
+    public int getRepeatCount() {
+        return repeatCount;
+    }
+
+    public void setRepeatCount(int repeatCount) {
+        this.repeatCount = repeatCount;
     }
 
     public int getAction() {
@@ -202,6 +214,9 @@ public class ScriptCmdBean {
             str="无操作";
         }else {
             str="未知命令,"+content;
+        }
+        if (repeatCount > 1 && (action == ACTION_CLICK || action == ACTION_GESTURE || action == ACTION_RANDOM_CLICK)) {
+            str = str + " ×" + repeatCount;
         }
         return str;
     }

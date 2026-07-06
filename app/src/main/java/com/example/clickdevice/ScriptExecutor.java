@@ -76,18 +76,39 @@ public class ScriptExecutor {
         if (scriptCmdBean.getAction() == ScriptCmdBean.ACTION_DELAYED) {
             scriptInterFace.delayedCmd(scriptCmdBean.getDelayed());
         } else if (scriptCmdBean.getAction() == ScriptCmdBean.ACTION_CLICK) {
-            scriptInterFace.delayedCmd(scriptCmdBean.getDelayed());
-            scriptInterFace.clickCMD(scriptCmdBean.getX0(), scriptCmdBean.getY0(), scriptCmdBean.getDuration());
+            int repeatCount = Math.max(scriptCmdBean.getRepeatCount(), 1);
+            for (int r = 0; r < repeatCount; r++) {
+                if (scriptInterFace == null || !scriptInterFace.isRun()) return;
+                scriptInterFace.delayedCmd(scriptCmdBean.getDelayed());
+                scriptInterFace.clickCMD(scriptCmdBean.getX0(), scriptCmdBean.getY0(), scriptCmdBean.getDuration());
+                if (r < repeatCount - 1) {
+                    Thread.sleep(80);
+                }
+            }
         } else if (scriptCmdBean.getAction() == ScriptCmdBean.ACTION_GESTURE) {
-            scriptInterFace.delayedCmd(scriptCmdBean.getDelayed());
-            scriptInterFace.gestureCMD(scriptCmdBean.getX0(), scriptCmdBean.getY0()
-                    , scriptCmdBean.getX1(), scriptCmdBean.getY1()
-                    , scriptCmdBean.getDuration());
+            int repeatCount = Math.max(scriptCmdBean.getRepeatCount(), 1);
+            for (int r = 0; r < repeatCount; r++) {
+                if (scriptInterFace == null || !scriptInterFace.isRun()) return;
+                scriptInterFace.delayedCmd(scriptCmdBean.getDelayed());
+                scriptInterFace.gestureCMD(scriptCmdBean.getX0(), scriptCmdBean.getY0()
+                        , scriptCmdBean.getX1(), scriptCmdBean.getY1()
+                        , scriptCmdBean.getDuration());
+                if (r < repeatCount - 1) {
+                    Thread.sleep(80);
+                }
+            }
         } else if (scriptCmdBean.getAction() == ScriptCmdBean.ACTION_RANDOM_CLICK) {
-            scriptInterFace.delayedCmd(scriptCmdBean.getDelayed());
-            int x = Util.randomInt(scriptCmdBean.getX1(), scriptCmdBean.getX0());
-            int y = Util.randomInt(scriptCmdBean.getY1(), scriptCmdBean.getY0());
-            scriptInterFace.clickCMD(x, y, scriptCmdBean.getDuration());
+            int repeatCount = Math.max(scriptCmdBean.getRepeatCount(), 1);
+            for (int r = 0; r < repeatCount; r++) {
+                if (scriptInterFace == null || !scriptInterFace.isRun()) return;
+                scriptInterFace.delayedCmd(scriptCmdBean.getDelayed());
+                int x = Util.randomInt(scriptCmdBean.getX1(), scriptCmdBean.getX0());
+                int y = Util.randomInt(scriptCmdBean.getY1(), scriptCmdBean.getY0());
+                scriptInterFace.clickCMD(x, y, scriptCmdBean.getDuration());
+                if (r < repeatCount - 1) {
+                    Thread.sleep(80);
+                }
+            }
         }
     }
 

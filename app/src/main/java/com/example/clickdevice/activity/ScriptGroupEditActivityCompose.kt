@@ -403,6 +403,7 @@ fun ScriptGroupEditMainPage(
     var editingCmdBean by remember { mutableStateOf(ScriptCmdBean.BuildNoneCMD()) }
     var editingCmdIndex by remember { mutableIntStateOf(-1) }
     var showCmdTypeDialog by remember { mutableStateOf(false) }
+    var editingRepeatCmd by remember { mutableStateOf<ScriptCmdBean?>(null) }
     var xCoeffText by remember { mutableStateOf("") }
     var yCoeffText by remember { mutableStateOf("") }
     var coeffLoaded by remember { mutableStateOf(false) }
@@ -599,6 +600,15 @@ fun ScriptGroupEditMainPage(
                         }) {
                             Icon(Icons.Default.Edit, contentDescription = "编辑")
                         }
+                        if (cmd.action == ScriptCmdBean.ACTION_CLICK ||
+                            cmd.action == ScriptCmdBean.ACTION_GESTURE ||
+                            cmd.action == ScriptCmdBean.ACTION_RANDOM_CLICK) {
+                            IconButton(onClick = {
+                                editingRepeatCmd = cmd
+                            }) {
+                                Icon(Icons.Default.Edit, contentDescription = "设置点击次数")
+                            }
+                        }
                         IconButton(onClick = {
                             val treeMap = TreeMap(scriptGroup.actionMap)
                             treeMap.remove(name)
@@ -711,6 +721,29 @@ fun ScriptGroupEditMainPage(
                 TextButton(onClick = { showImportDialog = false }) {
                     Text("取消")
                 }
+            }
+        )
+    }
+
+    // 点击次数编辑弹窗
+    editingRepeatCmd?.let { cmd ->
+        RepeatCountDialog(
+            cmd = cmd,
+            onDismiss = { editingRepeatCmd = null },
+            onConfirm = { repeatCount ->
+                cmd.repeatCount = repeatCount.coerceAtLeast(1)
+                cmd.content = cmd.info()
+                // 更新 actionMap 以触发 UI 刷新
+                val treeMap = TreeMap(scriptGroup.actionMap)
+                // find the key for this cmd and re-insert to trigger state update
+                for ((key, value) in treeMap) {
+                    if (value === cmd) {
+                        treeMap[key] = cmd
+                        break
+                    }
+                }
+                onScriptGroupChange(scriptGroup.copy(actionMap = treeMap))
+                editingRepeatCmd = null
             }
         )
     }

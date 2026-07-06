@@ -54,6 +54,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilterChip
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -262,6 +263,8 @@ fun ScriptEditScreen(
     var currentInsertIndex by remember { mutableIntStateOf(-1) }
     // 当前正在编辑的命令（null 表示新建）
     var editingCmd by remember { mutableStateOf<ScriptCmdBean?>(null) }
+    // 当前正在编辑点击次数的命令
+    var editingRepeatCmd by remember { mutableStateOf<ScriptCmdBean?>(null) }
 
     // 观察 LiveData 中的 ScriptDataBean
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -609,6 +612,21 @@ fun ScriptEditScreen(
                                     Text("编辑", fontSize = 12.sp)
                                 }
 
+                                // 点击次数按钮（仅对点击/手势/随机点击命令显示）
+                                if (cmd.action == ScriptCmdBean.ACTION_CLICK ||
+                                    cmd.action == ScriptCmdBean.ACTION_GESTURE ||
+                                    cmd.action == ScriptCmdBean.ACTION_RANDOM_CLICK) {
+                                    OutlinedButton(
+                                        onClick = { editingRepeatCmd = cmd },
+                                        shape = RoundedCornerShape(8.dp),
+                                        contentPadding = ButtonDefaults.TextButtonWithIconContentPadding,
+                                    ) {
+                                        Icon(Icons.Default.Edit, contentDescription = null)
+                                        Spacer(modifier = Modifier.width(2.dp))
+                                        Text("次数", fontSize = 12.sp)
+                                    }
+                                }
+
                                 Spacer(modifier = Modifier.weight(1f))
 
                                 IconButton(
@@ -871,6 +889,20 @@ fun ScriptEditScreen(
                 showJsonDialog = false
             },
             onDismiss = { showJsonDialog = false }
+        )
+    }
+
+    // 点击次数编辑弹窗
+    editingRepeatCmd?.let { cmd ->
+        RepeatCountDialog(
+            cmd = cmd,
+            onDismiss = { editingRepeatCmd = null },
+            onConfirm = { repeatCount ->
+                cmd.repeatCount = repeatCount.coerceAtLeast(1)
+                // 更新 content 以反映新次数
+                cmd.content = cmd.info()
+                editingRepeatCmd = null
+            }
         )
     }
 }
@@ -1232,6 +1264,66 @@ fun JsonImportDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("取消") }
+        }
+    )
+}
+
+// ==================== 点击次数编辑弹窗 ====================
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+fun RepeatCountDialog(
+    cmd: ScriptCmdBean,
+    onDismiss: () -> Unit,
+    onConfirm: (Int) -> Unit
+) {
+    var repeatCountText by remember(cmd) {
+        mutableStateOf(cmd.repeatCount.coerceAtLeast(1).toString())
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("点击次数") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    "设置这条命令连续执行几次。1 次为单击，2 次为双击。",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(
+                        selected = repeatCountText == "1",
+                        onClick = { repeatCountText = "1" },
+                        label = { Text("单击") }
+                    )
+                    FilterChip(
+                        selected = repeatCountText == "2",
+                        onClick = { repeatCountText = "2" },
+                        label = { Text("双击") }
+                    )
+                }
+                OutlinedTextField(
+                    value = repeatCountText,
+                    onValueChange = { repeatCountText = it.filter { c -> c.isDigit() } },
+                    label = { Text("执行次数") },
+                    placeholder = { Text("1") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                onConfirm(repeatCountText.toIntOrNull()?.coerceAtLeast(1) ?: 1)
+            }) {
+                Text("确定")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消")
+            }
         }
     )
 }
