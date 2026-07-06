@@ -855,6 +855,11 @@ private fun MineTabContent(
     onOpenCompliance: () -> Unit
 ) {
     val context = LocalContext.current
+    val adbCommand = "adb shell pm grant $packageName android.permission.WRITE_SECURE_SETTINGS"
+    val copyAdbCommand = {
+        Util.copyText(adbCommand, context)
+        Toast.makeText(context, "已复制命令", Toast.LENGTH_SHORT).show()
+    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -907,20 +912,49 @@ private fun MineTabContent(
             }
         }
 
-        Text(
-            text = "ADB增强：adb shell pm grant $packageName android.permission.WRITE_SECURE_SETTINGS",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-                    Util.copyText(
-                        "adb shell pm grant $packageName android.permission.WRITE_SECURE_SETTINGS",
-                        context
+                .clickable { copyAdbCommand() }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 96.dp)
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Icon(
+                    Icons.Default.Settings,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text("ADB增强", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "复制授权命令，在电脑终端执行后可开启高级系统设置能力。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Toast.makeText(context, "已复制命令", Toast.LENGTH_SHORT).show()
+                    Text(
+                        adbCommand,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    TextButton(
+                        onClick = { copyAdbCommand() },
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .defaultMinSize(minHeight = 48.dp)
+                    ) {
+                        Text("复制命令")
+                    }
                 }
-        )
+            }
+        }
 
         OutlinedButton(
             onClick = onOpenAppSettings,
