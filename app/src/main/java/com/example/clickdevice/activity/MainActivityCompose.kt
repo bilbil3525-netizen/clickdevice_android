@@ -29,16 +29,20 @@ import androidx.compose.material.icons.filled.BatterySaver
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Keyboard
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.SettingsSuggest
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Terminal
@@ -65,6 +69,8 @@ import com.example.clickdevice.helper.DeviceWindowMetricsProvider
 import com.example.clickdevice.helper.PermissionStatus
 import com.example.clickdevice.helper.setOnTouchClick
 import com.example.clickdevice.helper.smallWindowManager
+import com.example.clickdevice.ui.theme.AppThemeMode
+import com.example.clickdevice.ui.theme.AppThemePreference
 import com.example.clickdevice.ui.theme.ClickDeviceTheme
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -104,9 +110,13 @@ class MainActivityCompose : ComponentActivity() {
         super.onCreate(savedInstanceState)
         refreshPermissionStatuses()
         setContent {
-            ClickDeviceTheme {
+            val context = LocalContext.current
+            AppThemePreference.ensureLoaded(context)
+            val selectedThemeMode = AppThemePreference.themeMode
+            val darkTheme = selectedThemeMode.resolveDarkTheme(androidx.compose.foundation.isSystemInDarkTheme())
+            ClickDeviceTheme(darkTheme = darkTheme) {
                 val barColor = MaterialTheme.colorScheme.surface
-                val darkIcons = !androidx.compose.foundation.isSystemInDarkTheme()
+                val darkIcons = !darkTheme
                 SideEffect {
                     window.statusBarColor = barColor.toArgb()
                     window.navigationBarColor = barColor.toArgb()
@@ -123,6 +133,7 @@ class MainActivityCompose : ComponentActivity() {
                 isFloatingWindowShow = isShow,
                 clickCount = clickCount,
                 clickInterval = clickInterval,
+                selectedThemeMode = selectedThemeMode,
                 showAccessibilityDialog = showAccessibilityDialog,
                 showComplianceDialog = showComplianceDialog,
                 onDismissAccessibilityDialog = { showAccessibilityDialog = false },
@@ -136,6 +147,7 @@ class MainActivityCompose : ComponentActivity() {
                 onOpenOverlaySettings = { openOverlaySettings() },
                 onOpenBatterySettings = { openBatterySettings() },
                 onOpenAppSettings = { openAppSettings() },
+                onThemeModeChange = { AppThemePreference.setThemeMode(context, it) },
                 onStartClickDevice = { startClickDevice() },
                 onOpenScriptList = { startScriptList() },
                 onOpenRecordScript = { startRecordScript() },
@@ -505,6 +517,7 @@ fun MainScreen(
     clickCount: String,
     clickInterval: String,
     permissionStatuses: List<PermissionStatus> = emptyList(),
+    selectedThemeMode: AppThemeMode = AppThemeMode.System,
     showAccessibilityDialog: Boolean = false,
     showComplianceDialog: Boolean = false,
     onDismissAccessibilityDialog: () -> Unit = {},
@@ -514,6 +527,7 @@ fun MainScreen(
     onOpenOverlaySettings: () -> Unit = {},
     onOpenBatterySettings: () -> Unit = {},
     onOpenAppSettings: () -> Unit = {},
+    onThemeModeChange: (AppThemeMode) -> Unit = {},
     onStartClickDevice: () -> Unit,
     onOpenScriptList: () -> Unit,
     onOpenRecordScript: () -> Unit,
@@ -589,6 +603,8 @@ fun MainScreen(
                 onOpenOverlaySettings = onOpenOverlaySettings,
                 onOpenBatterySettings = onOpenBatterySettings,
                 onOpenAppSettings = onOpenAppSettings,
+                selectedThemeMode = selectedThemeMode,
+                onThemeModeChange = onThemeModeChange,
                 onOpenCompliance = onOpenCompliance
             )
         }
@@ -825,7 +841,7 @@ private fun ScriptTabContent(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Button(onClick = onOpenRecordScript, modifier = Modifier.fillMaxWidth()) {
-                    Icon(Icons.Default.TouchApp, contentDescription = null)
+                    Icon(Icons.Default.EditNote, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("进入录制脚本")
                 }
@@ -868,6 +884,8 @@ private fun MineTabContent(
     onOpenOverlaySettings: () -> Unit,
     onOpenBatterySettings: () -> Unit,
     onOpenAppSettings: () -> Unit,
+    selectedThemeMode: AppThemeMode,
+    onThemeModeChange: (AppThemeMode) -> Unit,
     onOpenCompliance: () -> Unit
 ) {
     val context = LocalContext.current
@@ -891,6 +909,11 @@ private fun MineTabContent(
             onOpenOverlaySettings = onOpenOverlaySettings,
             onOpenBatterySettings = onOpenBatterySettings,
             onOpenAppSettings = onOpenAppSettings
+        )
+
+        ThemeModePanel(
+            selectedThemeMode = selectedThemeMode,
+            onThemeModeChange = onThemeModeChange
         )
 
         OutlinedButton(
@@ -983,6 +1006,90 @@ private fun MineTabContent(
 
         Spacer(modifier = Modifier.height(12.dp))
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ThemeModePanel(
+    selectedThemeMode: AppThemeMode,
+    onThemeModeChange: (AppThemeMode) -> Unit
+) {
+    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.SettingsSuggest,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("界面颜色", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "选择黑、白，或跟随系统自动切换。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ThemeModeChip(
+                    mode = AppThemeMode.Dark,
+                    selectedThemeMode = selectedThemeMode,
+                    icon = Icons.Default.DarkMode,
+                    onThemeModeChange = onThemeModeChange,
+                    modifier = Modifier.weight(1f)
+                )
+                ThemeModeChip(
+                    mode = AppThemeMode.Light,
+                    selectedThemeMode = selectedThemeMode,
+                    icon = Icons.Default.LightMode,
+                    onThemeModeChange = onThemeModeChange,
+                    modifier = Modifier.weight(1f)
+                )
+                ThemeModeChip(
+                    mode = AppThemeMode.System,
+                    selectedThemeMode = selectedThemeMode,
+                    icon = Icons.Default.SettingsSuggest,
+                    onThemeModeChange = onThemeModeChange,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ThemeModeChip(
+    mode: AppThemeMode,
+    selectedThemeMode: AppThemeMode,
+    icon: ImageVector,
+    onThemeModeChange: (AppThemeMode) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    FilterChip(
+        selected = selectedThemeMode == mode,
+        onClick = { onThemeModeChange(mode) },
+        label = { Text(mode.displayName) },
+        leadingIcon = {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(FilterChipDefaults.IconSize)
+            )
+        },
+        modifier = modifier.defaultMinSize(minHeight = 48.dp)
+    )
 }
 
 @Composable

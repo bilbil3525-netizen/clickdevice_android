@@ -15,12 +15,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Rule
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Title
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
@@ -319,7 +322,7 @@ fun KeyBindingEditScreen(
         ) {
             Spacer(modifier = Modifier.height(4.dp))
 
-            SectionCard(title = "按键信息", icon = Icons.Default.Title) {
+            SectionCard(title = "按键信息", icon = Icons.Default.Badge) {
                 OutlinedTextField(
                     value = keyName,
                     onValueChange = { keyName = it },
@@ -389,7 +392,7 @@ fun KeyBindingEditScreen(
                 )
             }
 
-            SectionCard(title = "脚本设置", icon = Icons.Default.PlayArrow) {
+            SectionCard(title = "脚本设置", icon = Icons.Default.Rule) {
                 Text(
                     "选择脚本类型",
                     style = MaterialTheme.typography.titleSmall,
@@ -469,7 +472,7 @@ fun KeyBindingEditScreen(
             }
 
             if (binding.scriptId > 0) {
-                SectionCard(title = "运行参数", icon = Icons.Default.PlayArrow) {
+                SectionCard(title = "运行参数", icon = Icons.Default.Speed) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -525,7 +528,7 @@ fun KeyBindingEditScreen(
                     }
                 }
 
-                SectionCard(title = "坐标系数", icon = Icons.Default.Title) {
+                SectionCard(title = "坐标系数", icon = Icons.Default.MyLocation) {
                     Text(
                         "实际坐标 = 原始坐标 x 系数，取值范围 0.25~5",
                         style = MaterialTheme.typography.bodySmall,

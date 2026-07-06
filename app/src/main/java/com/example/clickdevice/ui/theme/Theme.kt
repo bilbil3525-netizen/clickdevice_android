@@ -79,16 +79,18 @@ private val AppShapes = Shapes(
 
 @Composable
 fun ClickDeviceTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean? = null,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
+    AppThemePreference.ensureLoaded(context)
+    val resolvedDarkTheme = darkTheme ?: AppThemePreference.themeMode.resolveDarkTheme(isSystemInDarkTheme())
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (resolvedDarkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> DarkColorScheme
+        resolvedDarkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
 
