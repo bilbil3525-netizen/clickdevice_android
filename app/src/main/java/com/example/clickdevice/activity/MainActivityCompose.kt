@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -998,11 +999,11 @@ private fun QuickStartTutorialDialog(onDismiss: () -> Unit) {
         title = { Text("快速连点使用教程") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("1. 开启无障碍与悬浮窗权限。")
-                Text("2. 点击“打开连点器”显示点位选择器和开始按钮。")
-                Text("3. 拖动点位到目标位置。")
-                Text("4. 设置点击次数和间隔。")
-                Text("5. 点击悬浮“开始/停止”控制运行。")
+                TutorialStepRow(1, "开启无障碍与悬浮窗权限。")
+                TutorialStepRow(2, "点击“打开连点器”显示点位选择器和开始按钮。")
+                TutorialStepRow(3, "拖动点位到目标位置。")
+                TutorialStepRow(4, "设置点击次数和间隔。")
+                TutorialStepRow(5, "点击悬浮“开始/停止”控制运行。")
             }
         },
         confirmButton = {
@@ -1011,6 +1012,35 @@ private fun QuickStartTutorialDialog(onDismiss: () -> Unit) {
             }
         }
     )
+}
+
+@Composable
+private fun TutorialStepRow(index: Int, text: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        Surface(
+            modifier = Modifier.size(28.dp),
+            shape = MaterialTheme.shapes.small,
+            color = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Text(
+                    text = index.toString(),
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
+        }
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+    }
 }
 
 @Composable
