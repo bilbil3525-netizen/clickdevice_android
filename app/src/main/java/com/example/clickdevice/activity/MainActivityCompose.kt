@@ -21,8 +21,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RadioButtonChecked
@@ -970,45 +973,59 @@ private fun PermissionStatusPanel(
     }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         statuses.forEachIndexed { index, status ->
+            val stateColor = when {
+                !status.showStatus -> MaterialTheme.colorScheme.onSurfaceVariant
+                status.isWarning -> MaterialTheme.colorScheme.error
+                else -> MaterialTheme.colorScheme.primary
+            }
+            val stateIcon = when {
+                !status.showStatus -> Icons.Default.Info
+                status.isWarning -> Icons.Default.ErrorOutline
+                else -> Icons.Default.CheckCircle
+            }
             ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(status.title, style = MaterialTheme.typography.titleSmall)
-                        Text(
-                            status.description,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                ListItem(
+                    colors = ListItemDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    leadingContent = {
+                        Icon(
+                            imageVector = stateIcon,
+                            contentDescription = null,
+                            tint = stateColor
                         )
-                        if (status.showStatus) {
-                            Text(
-                                status.statusText,
-                                style = MaterialTheme.typography.labelMedium,
-                                color = if (status.isWarning) {
-                                    MaterialTheme.colorScheme.error
-                                } else {
-                                    MaterialTheme.colorScheme.primary
-                                }
-                            )
-                        }
-                    }
-                    TextButton(
-                        onClick = {
-                            when (index) {
-                                0 -> onOpenAccessibility()
-                                1 -> onOpenOverlaySettings()
-                                2 -> onOpenBatterySettings()
-                                else -> onOpenAppSettings()
+                    },
+                    headlineContent = {
+                        Text(status.title, style = MaterialTheme.typography.titleSmall)
+                    },
+                    supportingContent = {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(status.description)
+                            if (status.showStatus) {
+                                Text(
+                                    status.statusText,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = stateColor
+                                )
                             }
                         }
-                    ) {
-                        Text(status.actionLabel)
+                    },
+                    trailingContent = {
+                        TextButton(
+                            onClick = {
+                                when (index) {
+                                    0 -> onOpenAccessibility()
+                                    1 -> onOpenOverlaySettings()
+                                    2 -> onOpenBatterySettings()
+                                    else -> onOpenAppSettings()
+                                }
+                            },
+                            modifier = Modifier.defaultMinSize(minHeight = 48.dp)
+                        ) {
+                            Text(status.actionLabel)
+                        }
                     }
-                }
+                )
             }
         }
     }

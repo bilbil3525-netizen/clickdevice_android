@@ -23,24 +23,28 @@ data class PermissionStatus(
 
 object DevicePermissionHelper {
     fun collectStatuses(context: Context): List<PermissionStatus> {
+        val accessibilityGranted = isAccessibilityServiceEnabled(context, MyService::class.java)
+        val overlayGranted =
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(context)
+        val batteryGranted = isIgnoringBatteryOptimizations(context)
         return listOf(
             PermissionStatus(
                 title = "无障碍服务",
                 description = "用于执行你主动配置的点击、长按和滑动手势",
-                granted = isAccessibilityServiceEnabled(context, MyService::class.java),
-                actionLabel = "去开启"
+                granted = accessibilityGranted,
+                actionLabel = if (accessibilityGranted) "查看" else "去开启"
             ),
             PermissionStatus(
                 title = "悬浮窗",
                 description = "用于显示开始/停止按钮和点位选择器",
-                granted = Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(context),
-                actionLabel = "去授权"
+                granted = overlayGranted,
+                actionLabel = if (overlayGranted) "查看" else "去授权"
             ),
             PermissionStatus(
                 title = "后台省电",
                 description = "建议设置为不限制，降低 HyperOS 清理服务的概率",
-                granted = isIgnoringBatteryOptimizations(context),
-                actionLabel = "去设置"
+                granted = batteryGranted,
+                actionLabel = if (batteryGranted) "查看" else "去设置"
             ),
             PermissionStatus(
                 title = "自启动",
