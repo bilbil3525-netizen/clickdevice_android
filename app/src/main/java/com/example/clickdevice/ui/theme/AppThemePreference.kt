@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 enum class AppThemeMode(val storageValue: String, val displayName: String) {
-    System("system", "同步"),
+    System("system", "跟随系统"),
     Light("light", "浅色"),
     Dark("dark", "深色");
 
