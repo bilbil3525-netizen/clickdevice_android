@@ -546,7 +546,9 @@ fun MainScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(selectedTab.title) })
+            if (selectedTab != MainTab.Home) {
+                TopAppBar(title = { Text(selectedTab.title) })
+            }
         },
         bottomBar = {
             NavigationBar(
@@ -668,9 +670,19 @@ private fun HomeTabContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
             .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text("首页", style = MaterialTheme.typography.titleLarge)
+            Text(
+                "设置点击参数后即可启动",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
         AnimatedVisibility(
             visible = showRunStatus,
             enter = fadeIn(
@@ -686,47 +698,44 @@ private fun HomeTabContent(
                 animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing)
             )
         ) {
-            Column {
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Text("运行状态", style = MaterialTheme.typography.titleMedium)
-                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            if (!accessibilityReady) {
-                                HomePermissionStatusRow(
-                                    icon = Icons.Outlined.AccessibilityNew,
-                                    title = "无障碍服务",
-                                    ready = false,
-                                    readyText = "已开启",
-                                    pendingText = "未开启",
-                                    readyAction = "查看",
-                                    pendingAction = "去开启",
-                                    onClick = onOpenAccessibility
-                                )
-                            }
-                            if (!overlayReady) {
-                                HomePermissionStatusRow(
-                                    icon = Icons.Outlined.TouchApp,
-                                    title = "悬浮窗",
-                                    ready = false,
-                                    readyText = "已授权",
-                                    pendingText = "待授权",
-                                    readyAction = "查看",
-                                    pendingAction = "去授权",
-                                    onClick = onOpenOverlaySettings
-                                )
-                            }
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text("运行状态", style = MaterialTheme.typography.titleMedium)
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        if (!accessibilityReady) {
+                            HomePermissionStatusRow(
+                                icon = Icons.Outlined.AccessibilityNew,
+                                title = "无障碍服务",
+                                ready = false,
+                                readyText = "已开启",
+                                pendingText = "未开启",
+                                readyAction = "查看",
+                                pendingAction = "去开启",
+                                onClick = onOpenAccessibility
+                            )
                         }
-                        Text(
-                            "完成上面的权限后，运行状态会自动收起。",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        if (!overlayReady) {
+                            HomePermissionStatusRow(
+                                icon = Icons.Outlined.TouchApp,
+                                title = "悬浮窗",
+                                ready = false,
+                                readyText = "已授权",
+                                pendingText = "待授权",
+                                readyAction = "查看",
+                                pendingAction = "去授权",
+                                onClick = onOpenOverlaySettings
+                            )
+                        }
                     }
+                    Text(
+                        "完成上面的权限后，运行状态会自动收起。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
-                Spacer(modifier = Modifier.height(12.dp))
             }
         }
 
@@ -817,35 +826,27 @@ private fun HomeTabContent(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(if (isFloatingWindowShow) "关闭悬浮控制" else "打开连点器")
                 }
-            }
-        }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        ElevatedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onOpenTutorial() }
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Icon(Icons.Outlined.HelpOutline, contentDescription = null)
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("使用教程", style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        "查看快速连点的权限、点位和开始/停止步骤。",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                TextButton(
+                    onClick = onOpenTutorial,
+                    modifier = Modifier.align(Alignment.End),
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
+                ) {
+                    Icon(
+                        Icons.Outlined.HelpOutline,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("不会使用？查看教程")
+                    Icon(
+                        Icons.Outlined.KeyboardArrowRight,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
                     )
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
     }
 }
 
