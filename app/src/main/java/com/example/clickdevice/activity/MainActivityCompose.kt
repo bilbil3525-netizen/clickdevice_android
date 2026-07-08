@@ -23,6 +23,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -58,12 +59,15 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.example.clickdevice.MyService
 import com.example.clickdevice.PowerKeyObserver
@@ -123,7 +127,8 @@ class MainActivityCompose : ComponentActivity() {
                 val barColor = MaterialTheme.colorScheme.surface
                 val darkIcons = !darkTheme
                 SideEffect {
-                    window.statusBarColor = barColor.toArgb()
+                    WindowCompat.setDecorFitsSystemWindows(window, false)
+                    window.statusBarColor = Color.Transparent.toArgb()
                     window.navigationBarColor = barColor.toArgb()
                     WindowInsetsControllerCompat(window, window.decorView).apply {
                         isAppearanceLightStatusBars = darkIcons
@@ -132,12 +137,13 @@ class MainActivityCompose : ComponentActivity() {
                 }
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = Color.Transparent
                 ) {
                     MainScreen(
                 isFloatingWindowShow = isShow,
                 clickCount = clickCount,
                 clickInterval = clickInterval,
+                darkTheme = darkTheme,
                 selectedThemeMode = selectedThemeMode,
                 showAccessibilityDialog = showAccessibilityDialog,
                 showComplianceDialog = showComplianceDialog,
@@ -521,6 +527,7 @@ fun MainScreen(
     isFloatingWindowShow: Boolean,
     clickCount: String,
     clickInterval: String,
+    darkTheme: Boolean = false,
     permissionStatuses: List<PermissionStatus> = emptyList(),
     selectedThemeMode: AppThemeMode = AppThemeMode.System,
     showAccessibilityDialog: Boolean = false,
@@ -544,74 +551,77 @@ fun MainScreen(
     var selectedTab by rememberSaveable { mutableStateOf(MainTab.Home) }
     var showTutorialDialog by rememberSaveable { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            if (selectedTab != MainTab.Home) {
-                TopAppBar(title = { Text(selectedTab.title) })
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(mainScreenGradientBrush(darkTheme))
+    ) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            contentWindowInsets = WindowInsets(0.dp),
+            bottomBar = {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 0.dp
+                ) {
+                    NavigationBarItem(
+                        selected = selectedTab == MainTab.Home,
+                        onClick = { selectedTab = MainTab.Home },
+                        icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
+                        label = { Text("首页") }
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == MainTab.Script,
+                        onClick = { selectedTab = MainTab.Script },
+                        icon = { Icon(Icons.Outlined.Description, contentDescription = null) },
+                        label = { Text("脚本") }
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == MainTab.Settings,
+                        onClick = { selectedTab = MainTab.Settings },
+                        icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
+                        label = { Text("设置") }
+                    )
+                }
             }
-        },
-        bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 0.dp
-            ) {
-                NavigationBarItem(
-                    selected = selectedTab == MainTab.Home,
-                    onClick = { selectedTab = MainTab.Home },
-                    icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
-                    label = { Text("首页") }
-                )
-                NavigationBarItem(
-                    selected = selectedTab == MainTab.Script,
-                    onClick = { selectedTab = MainTab.Script },
-                    icon = { Icon(Icons.Outlined.Description, contentDescription = null) },
-                    label = { Text("脚本") }
-                )
-                NavigationBarItem(
-                    selected = selectedTab == MainTab.Settings,
-                    onClick = { selectedTab = MainTab.Settings },
-                    icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
-                    label = { Text("设置") }
-                )
-            }
-        }
-    ) { padding ->
-        val accessibilityReady = permissionStatuses.firstOrNull { it.title == "无障碍服务" }?.granted == true
-        val overlayReady = permissionStatuses.firstOrNull { it.title == "悬浮窗" }?.granted == true
+        ) { padding ->
+            val accessibilityReady = permissionStatuses.firstOrNull { it.title == "无障碍服务" }?.granted == true
+            val overlayReady = permissionStatuses.firstOrNull { it.title == "悬浮窗" }?.granted == true
 
-        when (selectedTab) {
-            MainTab.Home -> HomeTabContent(
-                modifier = Modifier.padding(padding),
-                isFloatingWindowShow = isFloatingWindowShow,
-                accessibilityReady = accessibilityReady,
-                overlayReady = overlayReady,
-                clickCount = clickCount,
-                clickInterval = clickInterval,
-                onOpenAccessibility = onOpenAccessibility,
-                onOpenOverlaySettings = onOpenOverlaySettings,
-                onStartClickDevice = onStartClickDevice,
-                onCountChange = onCountChange,
-                onIntervalChange = onIntervalChange,
-                onOpenTutorial = { showTutorialDialog = true }
-            )
-            MainTab.Script -> ScriptTabContent(
-                modifier = Modifier.padding(padding),
-                onOpenScriptList = onOpenScriptList,
-                onOpenRecordScript = onOpenRecordScript,
-                onOpenScriptGroup = onOpenScriptGroup,
-                onOpenKeyBinding = onOpenKeyBinding
-            )
-            MainTab.Settings -> MineTabContent(
-                modifier = Modifier.padding(padding),
-                permissionStatuses = permissionStatuses,
-                onOpenAccessibility = onOpenAccessibility,
-                onOpenOverlaySettings = onOpenOverlaySettings,
-                onOpenBatterySettings = onOpenBatterySettings,
-                onOpenAppSettings = onOpenAppSettings,
-                selectedThemeMode = selectedThemeMode,
-                onThemeModeChange = onThemeModeChange,
-                onOpenCompliance = onOpenCompliance
-            )
+            when (selectedTab) {
+                MainTab.Home -> HomeTabContent(
+                    modifier = Modifier.padding(padding),
+                    isFloatingWindowShow = isFloatingWindowShow,
+                    accessibilityReady = accessibilityReady,
+                    overlayReady = overlayReady,
+                    clickCount = clickCount,
+                    clickInterval = clickInterval,
+                    onOpenAccessibility = onOpenAccessibility,
+                    onOpenOverlaySettings = onOpenOverlaySettings,
+                    onStartClickDevice = onStartClickDevice,
+                    onCountChange = onCountChange,
+                    onIntervalChange = onIntervalChange,
+                    onOpenTutorial = { showTutorialDialog = true }
+                )
+                MainTab.Script -> ScriptTabContent(
+                    modifier = Modifier.padding(padding),
+                    onOpenScriptList = onOpenScriptList,
+                    onOpenRecordScript = onOpenRecordScript,
+                    onOpenScriptGroup = onOpenScriptGroup,
+                    onOpenKeyBinding = onOpenKeyBinding
+                )
+                MainTab.Settings -> MineTabContent(
+                    modifier = Modifier.padding(padding),
+                    permissionStatuses = permissionStatuses,
+                    onOpenAccessibility = onOpenAccessibility,
+                    onOpenOverlaySettings = onOpenOverlaySettings,
+                    onOpenBatterySettings = onOpenBatterySettings,
+                    onOpenAppSettings = onOpenAppSettings,
+                    selectedThemeMode = selectedThemeMode,
+                    onThemeModeChange = onThemeModeChange,
+                    onOpenCompliance = onOpenCompliance
+                )
+            }
         }
     }
 
@@ -639,6 +649,40 @@ fun MainScreen(
 
     if (showComplianceDialog) {
         ComplianceDialog(onDismiss = onDismissComplianceDialog)
+    }
+}
+
+@Composable
+private fun mainScreenGradientBrush(darkTheme: Boolean): Brush {
+    val colorScheme = MaterialTheme.colorScheme
+    val colors = if (darkTheme) {
+        listOf(
+            colorScheme.primaryContainer.copy(alpha = 0.28f),
+            colorScheme.background,
+            colorScheme.background
+        )
+    } else {
+        listOf(
+            colorScheme.primaryContainer.copy(alpha = 0.72f),
+            colorScheme.background,
+            colorScheme.surface
+        )
+    }
+    return Brush.verticalGradient(colors)
+}
+
+@Composable
+private fun MainTabHeader(
+    title: String,
+    subtitle: String
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(title, style = MaterialTheme.typography.titleLarge)
+        Text(
+            subtitle,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -670,18 +714,12 @@ private fun HomeTabContent(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .padding(horizontal = 16.dp, vertical = 10.dp)
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text("首页", style = MaterialTheme.typography.titleLarge)
-            Text(
-                "设置点击参数后即可启动",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        MainTabHeader(title = "首页", subtitle = "设置点击参数后即可启动")
 
         AnimatedVisibility(
             visible = showRunStatus,
@@ -907,10 +945,13 @@ private fun ScriptTabContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .statusBarsPadding()
+            .padding(horizontal = 16.dp, vertical = 10.dp)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        MainTabHeader(title = "脚本", subtitle = "管理脚本与常用模板")
+
         ElevatedCard(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -1001,10 +1042,13 @@ private fun MineTabContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .statusBarsPadding()
+            .padding(horizontal = 16.dp, vertical = 10.dp)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        MainTabHeader(title = "设置", subtitle = "权限、外观与隐私设置")
+
         ElevatedCard(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier
