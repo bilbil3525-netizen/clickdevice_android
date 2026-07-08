@@ -47,7 +47,6 @@ import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.SettingsSuggest
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -65,7 +64,6 @@ import com.example.clickdevice.MyService
 import com.example.clickdevice.PowerKeyObserver
 import com.example.clickdevice.R
 import com.example.clickdevice.SmallWindowView
-import com.example.clickdevice.Util
 import com.example.clickdevice.helper.DevicePermissionHelper
 import com.example.clickdevice.helper.DeviceWindowMetricsProvider
 import com.example.clickdevice.helper.PermissionStatus
@@ -571,7 +569,6 @@ fun MainScreen(
             }
         }
     ) { padding ->
-        val context = LocalContext.current
         val accessibilityReady = permissionStatuses.firstOrNull { it.title == "无障碍服务" }?.granted == true
         val overlayReady = permissionStatuses.firstOrNull { it.title == "悬浮窗" }?.granted == true
 
@@ -599,7 +596,6 @@ fun MainScreen(
             )
             MainTab.Mine -> MineTabContent(
                 modifier = Modifier.padding(padding),
-                packageName = context.packageName,
                 permissionStatuses = permissionStatuses,
                 onOpenAccessibility = onOpenAccessibility,
                 onOpenOverlaySettings = onOpenOverlaySettings,
@@ -880,7 +876,6 @@ private fun ScriptTabContent(
 @Composable
 private fun MineTabContent(
     modifier: Modifier = Modifier,
-    packageName: String,
     permissionStatuses: List<PermissionStatus>,
     onOpenAccessibility: () -> Unit,
     onOpenOverlaySettings: () -> Unit,
@@ -890,12 +885,6 @@ private fun MineTabContent(
     onThemeModeChange: (AppThemeMode) -> Unit,
     onOpenCompliance: () -> Unit
 ) {
-    val context = LocalContext.current
-    val adbCommand = "adb shell pm grant $packageName android.permission.WRITE_SECURE_SETTINGS"
-    val copyAdbCommand = {
-        Util.copyText(adbCommand, context)
-        Toast.makeText(context, "已复制命令", Toast.LENGTH_SHORT).show()
-    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -950,50 +939,6 @@ private fun MineTabContent(
                 PermissionPurposeText("无障碍服务", "执行你主动创建或启动的点击、长按、滑动脚本。")
                 PermissionPurposeText("悬浮窗", "显示点位选择器、开始/停止按钮和按键悬浮控制。")
                 PermissionPurposeText("后台运行", "降低 HyperOS 清理服务导致脚本中断的概率。")
-            }
-        }
-
-        ElevatedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { copyAdbCommand() }
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .defaultMinSize(minHeight = 96.dp)
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Icon(
-                    Icons.Default.Terminal,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text("ADB增强", style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        "复制授权命令，在电脑终端执行后可开启高级系统设置能力。",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        adbCommand,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    TextButton(
-                        onClick = { copyAdbCommand() },
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .defaultMinSize(minHeight = 48.dp)
-                    ) {
-                        Text("复制命令")
-                    }
-                }
             }
         }
 
