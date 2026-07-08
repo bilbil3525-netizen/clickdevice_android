@@ -13,13 +13,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DesktopWindows
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.DesktopWindows
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.LockOpen
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
@@ -194,7 +194,7 @@ fun KeyBindingListScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onAddKey,
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
                 text = { Text("添加按键") },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
@@ -213,7 +213,7 @@ fun KeyBindingListScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(
-                        Icons.Default.Add,
+                        Icons.Outlined.Add,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.outline
@@ -404,7 +404,7 @@ fun KeyBindingItem(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Icon(
-                            imageVector = if (isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
+                            imageVector = if (isLocked) Icons.Outlined.Lock else Icons.Outlined.LockOpen,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                             tint = if (isLocked) MaterialTheme.colorScheme.error
@@ -453,7 +453,7 @@ fun KeyBindingItem(
                     contentPadding = ButtonDefaults.TextButtonWithIconContentPadding
                 ) {
                     Icon(
-                        Icons.Default.Edit,
+                        Icons.Outlined.Edit,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )
@@ -465,7 +465,7 @@ fun KeyBindingItem(
                     contentPadding = ButtonDefaults.TextButtonWithIconContentPadding
                 ) {
                     Icon(
-                        Icons.Default.Delete,
+                        Icons.Outlined.Delete,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.error

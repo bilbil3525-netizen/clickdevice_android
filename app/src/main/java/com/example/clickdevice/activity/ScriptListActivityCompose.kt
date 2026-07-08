@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -108,13 +108,13 @@ fun ScriptListScreen(
                 title = { Text(if (isSelectMode) "选择普通脚本" else "普通脚本列表") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
                     if (!isSelectMode) {
                         IconButton(onClick = onCreateNew) {
-                            Icon(Icons.Default.Add, contentDescription = "创建新脚本")
+                            Icon(Icons.Outlined.Add, contentDescription = "创建新脚本")
                         }
                     }
                 }

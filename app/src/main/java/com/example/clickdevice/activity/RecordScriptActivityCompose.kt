@@ -23,9 +23,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -439,7 +439,7 @@ fun RecordScriptEditScreen(
                 title = { Text(if (isEdit) "编辑录制脚本" else "新建录制脚本") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -557,13 +557,13 @@ fun RecordScriptEditScreen(
                                 IconButton(onClick = {
                                     editingRepeatCmd = cmd
                                 }) {
-                                    Icon(Icons.Default.Edit, contentDescription = "设置点击次数")
+                                    Icon(Icons.Outlined.Edit, contentDescription = "设置点击次数")
                                 }
                             }
                             IconButton(onClick = {
                                 viewModel?.removeRecordScriptCmd(cmd)
                             }) {
-                                Icon(Icons.Default.Delete, contentDescription = "删除")
+                                Icon(Icons.Outlined.Delete, contentDescription = "删除")
                             }
 
                         }

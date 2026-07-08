@@ -10,12 +10,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -105,7 +105,7 @@ fun RecordScriptListScreen(
                 title = { Text(if (isSelectMode) "选择录制脚本" else "录制脚本列表") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
                     }
                 }
             )
@@ -113,7 +113,7 @@ fun RecordScriptListScreen(
         floatingActionButton = {
             if (!isSelectMode) {
                 FloatingActionButton(onClick = onStartRecording) {
-                    Icon(Icons.Default.Add, contentDescription = "开始录制")
+                    Icon(Icons.Outlined.Add, contentDescription = "开始录制")
                 }
             }
         }
@@ -264,10 +264,10 @@ fun RecordScriptItem(
             ) {
 
                 IconButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, contentDescription = "编辑")
+                    Icon(Icons.Outlined.Edit, contentDescription = "编辑")
                 }
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "删除")
+                    Icon(Icons.Outlined.Delete, contentDescription = "删除")
                 }
                 TextButton(onClick = onCreateDesktop) {
                     Text("创建桌面")

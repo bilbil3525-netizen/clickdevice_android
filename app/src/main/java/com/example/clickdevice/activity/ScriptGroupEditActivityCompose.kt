@@ -27,12 +27,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Upload
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -452,7 +452,7 @@ fun ScriptGroupEditMainPage(
                 title = { Text("编辑脚本组") },
                 navigationIcon = {
                     IconButton(onClick = { showBackDialog = true }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -598,7 +598,7 @@ fun ScriptGroupEditMainPage(
                             editingCmdIndex = -2
                             showInsertCmdDialog = true
                         }) {
-                            Icon(Icons.Default.Edit, contentDescription = "编辑")
+                            Icon(Icons.Outlined.Edit, contentDescription = "编辑")
                         }
                         if (cmd.action == ScriptCmdBean.ACTION_CLICK ||
                             cmd.action == ScriptCmdBean.ACTION_GESTURE ||
@@ -606,7 +606,7 @@ fun ScriptGroupEditMainPage(
                             IconButton(onClick = {
                                 editingRepeatCmd = cmd
                             }) {
-                                Icon(Icons.Default.Edit, contentDescription = "设置点击次数")
+                                Icon(Icons.Outlined.Edit, contentDescription = "设置点击次数")
                             }
                         }
                         IconButton(onClick = {
@@ -615,7 +615,7 @@ fun ScriptGroupEditMainPage(
                             onScriptGroupChange(scriptGroup.copy(actionMap = treeMap))
                         }) {
                             Icon(
-                                Icons.Default.Delete,
+                                Icons.Outlined.Delete,
                                 contentDescription = "删除",
                                 tint = MaterialTheme.colorScheme.error
                             )
@@ -633,7 +633,7 @@ fun ScriptGroupEditMainPage(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.Add, contentDescription = null)
+                Icon(Icons.Outlined.Add, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("插入命令")
             }
@@ -767,12 +767,12 @@ fun ScriptGroupScriptListPage(
                 title = { Text("脚本列表") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
                     IconButton(onClick = onAddScript) {
-                        Icon(Icons.Default.Add, contentDescription = "添加脚本")
+                        Icon(Icons.Outlined.Add, contentDescription = "添加脚本")
                     }
                 }
             )
@@ -819,11 +819,11 @@ fun ScriptGroupScriptListPage(
                                 )
                             }
                             IconButton(onClick = { onEditScript(index) }) {
-                                Icon(Icons.Default.Edit, contentDescription = "编辑")
+                                Icon(Icons.Outlined.Edit, contentDescription = "编辑")
                             }
                             IconButton(onClick = { onDeleteScript(index) }) {
                                 Icon(
-                                    Icons.Default.Delete,
+                                    Icons.Outlined.Delete,
                                     contentDescription = "删除",
                                     tint = MaterialTheme.colorScheme.error
                                 )
@@ -871,7 +871,7 @@ fun ScriptGroupScriptEditPage(
                         updateAndSync()
                         onBack()
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -981,7 +981,7 @@ fun ScriptGroupScriptEditPage(
 
                                 ) {
                                     Icon(
-                                        Icons.Default.Add,
+                                        Icons.Outlined.Add,
                                         contentDescription = null,
                                     )
                                     Spacer(modifier = Modifier.width(2.dp))
@@ -993,7 +993,7 @@ fun ScriptGroupScriptEditPage(
                                     editingCmdValue = actionName
                                     showCmdSelectDialog = true
                                 }) {
-                                    Icon(Icons.Default.Edit, contentDescription = "编辑")
+                                    Icon(Icons.Outlined.Edit, contentDescription = "编辑")
                                 }
 
 
@@ -1010,7 +1010,7 @@ fun ScriptGroupScriptEditPage(
 
                                 ) {
                                     Icon(
-                                        Icons.Default.Upload,
+                                        Icons.Outlined.Upload,
                                         contentDescription = "上移",
 
                                     )
@@ -1028,7 +1028,7 @@ fun ScriptGroupScriptEditPage(
 
                                 ) {
                                     Icon(
-                                        Icons.Default.Download,
+                                        Icons.Outlined.Download,
                                         contentDescription = "下移",
 
                                     )
@@ -1041,7 +1041,7 @@ fun ScriptGroupScriptEditPage(
                                     updateAndSync()
                                 }) {
                                     Icon(
-                                        Icons.Default.Delete,
+                                        Icons.Outlined.Delete,
                                         contentDescription = "删除",
                                         tint = MaterialTheme.colorScheme.error
                                     )
@@ -1061,7 +1061,7 @@ fun ScriptGroupScriptEditPage(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.Add, contentDescription = null)
+                Icon(Icons.Outlined.Add, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("插入命令")
             }

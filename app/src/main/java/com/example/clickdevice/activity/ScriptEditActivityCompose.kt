@@ -39,14 +39,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.DragHandle
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.DragHandle
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.outlined.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -307,7 +307,7 @@ fun ScriptEditScreen(
                 title = { Text(if (isNew) "新建脚本" else "编辑脚本", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -356,7 +356,7 @@ fun ScriptEditScreen(
                         },
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding
                     ) {
-                        Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Outlined.Save, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("保存")
                     }
@@ -445,7 +445,7 @@ fun ScriptEditScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(20.dp))
+                Icon(Icons.Outlined.Add, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("插入命令")
             }
@@ -560,7 +560,7 @@ fun ScriptEditScreen(
                                     lineHeight = 18.sp
                                 )
                                 Icon(
-                                    Icons.Default.DragHandle,
+                                    Icons.Outlined.DragHandle,
                                     contentDescription = "拖拽排序",
                                     modifier = Modifier.size(20.dp),
                                     tint = MaterialTheme.colorScheme.outline
@@ -586,7 +586,7 @@ fun ScriptEditScreen(
                                     contentPadding = ButtonDefaults.TextButtonWithIconContentPadding,
 
                                 ) {
-                                    Icon(Icons.Default.Add, contentDescription = null)
+                                    Icon(Icons.Outlined.Add, contentDescription = null)
                                     Spacer(modifier = Modifier.width(2.dp))
                                     Text("插入 ↑", fontSize = 12.sp)
                                 }
@@ -607,7 +607,7 @@ fun ScriptEditScreen(
                                     contentPadding = ButtonDefaults.TextButtonWithIconContentPadding,
 
                                 ) {
-                                    Icon(Icons.Default.Edit, contentDescription = null)
+                                    Icon(Icons.Outlined.Edit, contentDescription = null)
                                     Spacer(modifier = Modifier.width(2.dp))
                                     Text("编辑", fontSize = 12.sp)
                                 }
@@ -621,7 +621,7 @@ fun ScriptEditScreen(
                                         shape = RoundedCornerShape(8.dp),
                                         contentPadding = ButtonDefaults.TextButtonWithIconContentPadding,
                                     ) {
-                                        Icon(Icons.Default.Edit, contentDescription = null)
+                                        Icon(Icons.Outlined.Edit, contentDescription = null)
                                         Spacer(modifier = Modifier.width(2.dp))
                                         Text("次数", fontSize = 12.sp)
                                     }
@@ -639,7 +639,7 @@ fun ScriptEditScreen(
                                     },
 
                                 ) {
-                                    Icon(Icons.Default.Upload, contentDescription = "上移")
+                                    Icon(Icons.Outlined.Upload, contentDescription = "上移")
                                 }
 
                                 IconButton(
@@ -652,7 +652,7 @@ fun ScriptEditScreen(
                                     },
 
                                 ) {
-                                    Icon(Icons.Default.Download, contentDescription = "下移")
+                                    Icon(Icons.Outlined.Download, contentDescription = "下移")
                                 }
 
                                 IconButton(
@@ -664,7 +664,7 @@ fun ScriptEditScreen(
 
                                 ) {
                                     Icon(
-                                        Icons.Default.Delete,
+                                        Icons.Outlined.Delete,
                                         contentDescription = "删除",
 
                                         tint = MaterialTheme.colorScheme.error

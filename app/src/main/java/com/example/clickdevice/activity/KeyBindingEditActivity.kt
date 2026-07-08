@@ -14,16 +14,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Badge
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.MyLocation
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Rule
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Badge
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.MyLocation
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Rule
+import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
@@ -293,7 +293,7 @@ fun KeyBindingEditScreen(
                 title = { Text(if (isNew) "添加按键" else "编辑按键", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
@@ -304,7 +304,7 @@ fun KeyBindingEditScreen(
                         },
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding
                     ) {
-                        Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Outlined.Save, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("保存")
                     }
@@ -322,7 +322,7 @@ fun KeyBindingEditScreen(
         ) {
             Spacer(modifier = Modifier.height(4.dp))
 
-            SectionCard(title = "按键信息", icon = Icons.Default.Badge) {
+            SectionCard(title = "按键信息", icon = Icons.Outlined.Badge) {
                 OutlinedTextField(
                     value = keyName,
                     onValueChange = { keyName = it },
@@ -344,7 +344,7 @@ fun KeyBindingEditScreen(
                 )
             }
 
-            SectionCard(title = "字体颜色", icon = Icons.Default.Palette) {
+            SectionCard(title = "字体颜色", icon = Icons.Outlined.Palette) {
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
@@ -369,7 +369,7 @@ fun KeyBindingEditScreen(
                         ) {
                             if (selectedColor == color) {
                                 Icon(
-                                    Icons.Default.Check,
+                                    Icons.Outlined.Check,
                                     contentDescription = null,
                                     modifier = Modifier.size(18.dp),
                                     tint = if (color == -0x1) Color.Black else Color.White
@@ -392,7 +392,7 @@ fun KeyBindingEditScreen(
                 )
             }
 
-            SectionCard(title = "脚本设置", icon = Icons.Default.Rule) {
+            SectionCard(title = "脚本设置", icon = Icons.Outlined.Rule) {
                 Text(
                     "选择脚本类型",
                     style = MaterialTheme.typography.titleSmall,
@@ -426,7 +426,7 @@ fun KeyBindingEditScreen(
                         Column(modifier = Modifier.padding(12.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
-                                    Icons.Default.Description,
+                                    Icons.Outlined.Description,
                                     contentDescription = null,
                                     modifier = Modifier.size(20.dp),
                                     tint = MaterialTheme.colorScheme.primary
@@ -472,7 +472,7 @@ fun KeyBindingEditScreen(
             }
 
             if (binding.scriptId > 0) {
-                SectionCard(title = "运行参数", icon = Icons.Default.Speed) {
+                SectionCard(title = "运行参数", icon = Icons.Outlined.Speed) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -528,7 +528,7 @@ fun KeyBindingEditScreen(
                     }
                 }
 
-                SectionCard(title = "坐标系数", icon = Icons.Default.MyLocation) {
+                SectionCard(title = "坐标系数", icon = Icons.Outlined.MyLocation) {
                     Text(
                         "实际坐标 = 原始坐标 x 系数，取值范围 0.25~5",
                         style = MaterialTheme.typography.bodySmall,

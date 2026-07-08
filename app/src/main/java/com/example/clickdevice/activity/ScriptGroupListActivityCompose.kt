@@ -11,12 +11,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Launch
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Launch
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -106,7 +106,7 @@ fun ScriptGroupListScreen(
                 title = { Text(if (isSelectMode) "选择自定义脚本" else "自定义脚本列表") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
                     }
                 }
             )
@@ -114,7 +114,7 @@ fun ScriptGroupListScreen(
         floatingActionButton = {
             if (!isSelectMode) {
                 FloatingActionButton(onClick = onCreateNew) {
-                    Icon(Icons.Default.Add, contentDescription = "创建新脚本组")
+                    Icon(Icons.Outlined.Add, contentDescription = "创建新脚本组")
                 }
             }
         }
@@ -185,13 +185,13 @@ fun ScriptGroupListScreen(
                                     IconButton(onClick = {
                                         ScriptGroupEditActivityCompose.startActivity(context, script.id)
                                     }) {
-                                        Icon(Icons.Default.Edit, contentDescription = "编辑")
+                                        Icon(Icons.Outlined.Edit, contentDescription = "编辑")
                                     }
                                     IconButton(onClick = {
                                         selectedScript = script
                                         showDeleteDialog = true
                                     }) {
-                                        Icon(Icons.Default.Delete, contentDescription = "删除")
+                                        Icon(Icons.Outlined.Delete, contentDescription = "删除")
                                     }
 
                                     TextButton(onClick = {
