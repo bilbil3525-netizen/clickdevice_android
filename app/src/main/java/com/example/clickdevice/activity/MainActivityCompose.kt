@@ -15,6 +15,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -650,46 +658,70 @@ private fun HomeTabContent(
     onIntervalChange: (String) -> Unit,
     onOpenTutorial: () -> Unit
 ) {
+    val showRunStatus = !accessibilityReady || !overlayReady
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 12.dp)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text("运行状态", style = MaterialTheme.typography.titleMedium)
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    HomePermissionStatusRow(
-                        icon = Icons.Default.AccessibilityNew,
-                        title = "无障碍服务",
-                        ready = accessibilityReady,
-                        readyText = "已开启",
-                        pendingText = "未开启",
-                        readyAction = "查看",
-                        pendingAction = "去开启",
-                        onClick = onOpenAccessibility
-                    )
-                    HomePermissionStatusRow(
-                        icon = Icons.Default.TouchApp,
-                        title = "悬浮窗",
-                        ready = overlayReady,
-                        readyText = "已授权",
-                        pendingText = "待授权",
-                        readyAction = "查看",
-                        pendingAction = "去授权",
-                        onClick = onOpenOverlaySettings
-                    )
+        AnimatedVisibility(
+            visible = showRunStatus,
+            enter = fadeIn(
+                animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing)
+            ) + expandVertically(
+                expandFrom = Alignment.Top,
+                animationSpec = tween(durationMillis = 240, easing = FastOutSlowInEasing)
+            ),
+            exit = fadeOut(
+                animationSpec = tween(durationMillis = 120, easing = LinearOutSlowInEasing)
+            ) + shrinkVertically(
+                shrinkTowards = Alignment.Top,
+                animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing)
+            )
+        ) {
+            Column {
+                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text("运行状态", style = MaterialTheme.typography.titleMedium)
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            if (!accessibilityReady) {
+                                HomePermissionStatusRow(
+                                    icon = Icons.Default.AccessibilityNew,
+                                    title = "无障碍服务",
+                                    ready = false,
+                                    readyText = "已开启",
+                                    pendingText = "未开启",
+                                    readyAction = "查看",
+                                    pendingAction = "去开启",
+                                    onClick = onOpenAccessibility
+                                )
+                            }
+                            if (!overlayReady) {
+                                HomePermissionStatusRow(
+                                    icon = Icons.Default.TouchApp,
+                                    title = "悬浮窗",
+                                    ready = false,
+                                    readyText = "已授权",
+                                    pendingText = "待授权",
+                                    readyAction = "查看",
+                                    pendingAction = "去授权",
+                                    onClick = onOpenOverlaySettings
+                                )
+                            }
+                        }
+                        Text(
+                            "完成上面的权限后，运行状态会自动收起。",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
-                Text(
-                    if (isFloatingWindowShow) "悬浮控制已显示，可在屏幕上选择点击位置。" else "打开连点器后，将显示点位选择器和开始按钮。",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
 
@@ -700,7 +732,11 @@ private fun HomeTabContent(
             ) {
                 Text("快速连点", style = MaterialTheme.typography.titleMedium)
                 Text(
-                    text = "拖动点位选择器确定位置，再用悬浮按钮开始或停止。",
+                    text = if (isFloatingWindowShow) {
+                        "悬浮控制已显示，可在屏幕上选择点击位置。"
+                    } else {
+                        "拖动点位选择器确定位置，再用悬浮按钮开始或停止。"
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -738,6 +774,8 @@ private fun HomeTabContent(
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
 
         ElevatedCard(
             modifier = Modifier
