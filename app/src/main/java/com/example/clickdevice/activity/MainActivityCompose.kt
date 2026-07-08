@@ -1004,7 +1004,7 @@ private fun MineTabContent(
         Text(
             text = versionLabel,
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 4.dp),
