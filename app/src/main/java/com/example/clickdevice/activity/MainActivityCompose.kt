@@ -29,33 +29,30 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessibilityNew
-import androidx.compose.material.icons.filled.AccountTree
-import androidx.compose.material.icons.filled.AppSettingsAlt
-import androidx.compose.material.icons.filled.Assignment
-import androidx.compose.material.icons.filled.BatterySaver
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.EditNote
-import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.HelpOutline
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Keyboard
-import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.ListAlt
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.PrivacyTip
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.SettingsSuggest
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material.icons.outlined.AccessibilityNew
+import androidx.compose.material.icons.outlined.AccountTree
+import androidx.compose.material.icons.outlined.AppSettingsAlt
+import androidx.compose.material.icons.outlined.BatterySaver
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.ErrorOutline
+import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Keyboard
+import androidx.compose.material.icons.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.LightMode
+import androidx.compose.material.icons.outlined.ListAlt
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.PrivacyTip
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.SettingsSuggest
+import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material.icons.outlined.TouchApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -515,7 +512,7 @@ class MainActivityCompose : ComponentActivity() {
 private enum class MainTab(val title: String) {
     Home("首页"),
     Script("脚本"),
-    Mine("我的")
+    Settings("设置")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -559,20 +556,20 @@ fun MainScreen(
                 NavigationBarItem(
                     selected = selectedTab == MainTab.Home,
                     onClick = { selectedTab = MainTab.Home },
-                    icon = { Icon(Icons.Default.Home, contentDescription = null) },
+                    icon = { Icon(Icons.Outlined.Home, contentDescription = null) },
                     label = { Text("首页") }
                 )
                 NavigationBarItem(
                     selected = selectedTab == MainTab.Script,
                     onClick = { selectedTab = MainTab.Script },
-                    icon = { Icon(Icons.Default.Description, contentDescription = null) },
+                    icon = { Icon(Icons.Outlined.Description, contentDescription = null) },
                     label = { Text("脚本") }
                 )
                 NavigationBarItem(
-                    selected = selectedTab == MainTab.Mine,
-                    onClick = { selectedTab = MainTab.Mine },
-                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
-                    label = { Text("我的") }
+                    selected = selectedTab == MainTab.Settings,
+                    onClick = { selectedTab = MainTab.Settings },
+                    icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
+                    label = { Text("设置") }
                 )
             }
         }
@@ -602,7 +599,7 @@ fun MainScreen(
                 onOpenScriptGroup = onOpenScriptGroup,
                 onOpenKeyBinding = onOpenKeyBinding
             )
-            MainTab.Mine -> MineTabContent(
+            MainTab.Settings -> MineTabContent(
                 modifier = Modifier.padding(padding),
                 permissionStatuses = permissionStatuses,
                 onOpenAccessibility = onOpenAccessibility,
@@ -643,6 +640,7 @@ fun MainScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun HomeTabContent(
     modifier: Modifier = Modifier,
@@ -659,6 +657,13 @@ private fun HomeTabContent(
     onOpenTutorial: () -> Unit
 ) {
     val showRunStatus = !accessibilityReady || !overlayReady
+    val intervalPresets = listOf("100", "500", "1000")
+    var customIntervalSelected by rememberSaveable { mutableStateOf(clickInterval !in intervalPresets) }
+    val selectedInterval = if (customIntervalSelected || clickInterval !in intervalPresets) {
+        "custom"
+    } else {
+        clickInterval
+    }
 
     Column(
         modifier = modifier
@@ -691,7 +696,7 @@ private fun HomeTabContent(
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             if (!accessibilityReady) {
                                 HomePermissionStatusRow(
-                                    icon = Icons.Default.AccessibilityNew,
+                                    icon = Icons.Outlined.AccessibilityNew,
                                     title = "无障碍服务",
                                     ready = false,
                                     readyText = "已开启",
@@ -703,7 +708,7 @@ private fun HomeTabContent(
                             }
                             if (!overlayReady) {
                                 HomePermissionStatusRow(
-                                    icon = Icons.Default.TouchApp,
+                                    icon = Icons.Outlined.TouchApp,
                                     title = "悬浮窗",
                                     ready = false,
                                     readyText = "已授权",
@@ -727,46 +732,86 @@ private fun HomeTabContent(
 
         ElevatedCard(modifier = Modifier.fillMaxWidth()) {
             Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                modifier = Modifier.padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                Text("快速连点", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    text = if (isFloatingWindowShow) {
-                        "悬浮控制已显示，可在屏幕上选择点击位置。"
-                    } else {
-                        "拖动点位选择器确定位置，再用悬浮按钮开始或停止。"
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                OutlinedTextField(
-                    value = clickCount,
-                    onValueChange = { onCountChange(it.filter { c -> c.isDigit() }) },
-                    label = { Text("点击次数") },
-                    supportingText = { Text("输入 0 表示持续点击，直到手动停止。") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("快速连点", style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        text = if (isFloatingWindowShow) "悬浮控制已显示" else "设置点击参数后启动",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f),
+                    shape = MaterialTheme.shapes.large,
                     modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = clickInterval,
-                    onValueChange = { onIntervalChange(it.filter { c -> c.isDigit() }) },
-                    label = { Text("时间间隔(ms)") },
-                    supportingText = { Text("单位为毫秒，最小按 1ms 执行。") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text("参数输入", style = MaterialTheme.typography.titleSmall)
+                        OutlinedTextField(
+                            value = clickCount,
+                            onValueChange = { onCountChange(it.filter { c -> c.isDigit() }) },
+                            label = { Text("点击次数") },
+                            supportingText = { Text("0 表示持续点击") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.medium
+                        )
+                        OutlinedTextField(
+                            value = clickInterval,
+                            onValueChange = {
+                                customIntervalSelected = true
+                                onIntervalChange(it.filter { c -> c.isDigit() })
+                            },
+                            label = { Text("时间间隔") },
+                            suffix = { Text("ms") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.medium
+                        )
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            intervalPresets.forEach { preset ->
+                                FilterChip(
+                                    selected = selectedInterval == preset,
+                                    onClick = {
+                                        customIntervalSelected = false
+                                        onIntervalChange(preset)
+                                    },
+                                    label = { Text("${preset}ms") }
+                                )
+                            }
+                            FilterChip(
+                                selected = selectedInterval == "custom",
+                                onClick = { customIntervalSelected = true },
+                                label = { Text("自定义") }
+                            )
+                        }
+                    }
+                }
+
                 Button(
                     onClick = onStartClickDevice,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(54.dp),
+                    shape = MaterialTheme.shapes.large,
                     colors = if (isFloatingWindowShow) ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     ) else ButtonDefaults.buttonColors()
                 ) {
                     Icon(
-                        if (isFloatingWindowShow) Icons.Default.Close else Icons.Default.PlayArrow,
+                        if (isFloatingWindowShow) Icons.Outlined.Close else Icons.Outlined.PlayArrow,
                         contentDescription = null
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -788,7 +833,7 @@ private fun HomeTabContent(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Icon(Icons.Default.HelpOutline, contentDescription = null)
+                Icon(Icons.Outlined.HelpOutline, contentDescription = null)
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text("使用教程", style = MaterialTheme.typography.titleMedium)
                     Text(
@@ -870,37 +915,54 @@ private fun ScriptTabContent(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text("录制脚本", style = MaterialTheme.typography.titleMedium)
+                Text("脚本中心", style = MaterialTheme.typography.titleLarge)
                 Text(
-                    "录制点击、长按和滑动动作，保存后可重复播放或放到悬浮按键中使用。",
+                    "管理常用动作、录制流程，并快速创建悬浮按键。",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Button(onClick = onOpenRecordScript, modifier = Modifier.fillMaxWidth()) {
-                    Icon(Icons.Default.EditNote, contentDescription = null)
+                    Icon(Icons.Outlined.EditNote, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("进入录制脚本")
                 }
             }
         }
 
-        Text("更多脚本工具", style = MaterialTheme.typography.titleMedium)
+        Text("最近脚本", style = MaterialTheme.typography.titleMedium)
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             ScriptToolButton(
-                icon = Icons.Default.ListAlt,
-                title = "普通脚本",
-                description = "手动编辑点击、延迟和滑动命令。",
+                icon = Icons.Outlined.ListAlt,
+                title = "普通脚本库",
+                description = "查看和编辑最近维护的点击脚本。",
                 onClick = onOpenScriptList
             )
             ScriptToolButton(
-                icon = Icons.Default.AccountTree,
-                title = "自定义脚本",
-                description = "把多个脚本动作组合成一组流程。",
+                icon = Icons.Outlined.AccountTree,
+                title = "自定义脚本组",
+                description = "继续编排多步骤动作流程。",
                 onClick = onOpenScriptGroup
             )
+        }
+
+        Text("推荐模板", style = MaterialTheme.typography.titleMedium)
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             ScriptToolButton(
-                icon = Icons.Default.Keyboard,
+                icon = Icons.Outlined.TouchApp,
+                title = "定点连点模板",
+                description = "适合固定位置的重复点击任务。",
+                onClick = onOpenScriptList
+            )
+            ScriptToolButton(
+                icon = Icons.Outlined.EditNote,
+                title = "录制复用模板",
+                description = "先录制一次操作，再重复执行。",
+                onClick = onOpenRecordScript
+            )
+            ScriptToolButton(
+                icon = Icons.Outlined.Keyboard,
                 title = "按键设置",
                 description = "创建悬浮按钮并绑定脚本。",
                 onClick = onOpenKeyBinding
@@ -942,6 +1004,30 @@ private fun MineTabContent(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                Icon(
+                    Icons.Outlined.PrivacyTip,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("隐私安全", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "本应用仅在本机执行点击、长按和滑动操作，不上传脚本、屏幕内容或账号信息。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+
         Text("设备与权限", style = MaterialTheme.typography.titleMedium)
 
         PermissionStatusPanel(
@@ -961,7 +1047,7 @@ private fun MineTabContent(
             onClick = onOpenCompliance,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(Icons.Default.PrivacyTip, contentDescription = null)
+            Icon(Icons.Outlined.PrivacyTip, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
             Text("权限与隐私说明")
         }
@@ -996,7 +1082,7 @@ private fun MineTabContent(
             onClick = onOpenAppSettings,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(Icons.Default.AppSettingsAlt, contentDescription = null)
+            Icon(Icons.Outlined.AppSettingsAlt, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
             Text("打开应用设置")
         }
@@ -1004,7 +1090,7 @@ private fun MineTabContent(
         Text(
             text = versionLabel,
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.52f),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 4.dp),
@@ -1034,7 +1120,7 @@ private fun ThemeModePanel(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                Icons.Default.Palette,
+                Icons.Outlined.Palette,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -1050,7 +1136,7 @@ private fun ThemeModePanel(
                 )
             }
             Icon(
-                Icons.Default.KeyboardArrowRight,
+                Icons.Outlined.KeyboardArrowRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -1066,7 +1152,7 @@ private fun ThemeModePanel(
                     ThemeModeOption(
                         mode = AppThemeMode.Dark,
                         selectedThemeMode = selectedThemeMode,
-                        icon = Icons.Default.DarkMode,
+                        icon = Icons.Outlined.DarkMode,
                         onSelect = {
                             onThemeModeChange(it)
                             showAppearanceDialog = false
@@ -1075,7 +1161,7 @@ private fun ThemeModePanel(
                     ThemeModeOption(
                         mode = AppThemeMode.Light,
                         selectedThemeMode = selectedThemeMode,
-                        icon = Icons.Default.LightMode,
+                        icon = Icons.Outlined.LightMode,
                         onSelect = {
                             onThemeModeChange(it)
                             showAppearanceDialog = false
@@ -1084,7 +1170,7 @@ private fun ThemeModePanel(
                     ThemeModeOption(
                         mode = AppThemeMode.System,
                         selectedThemeMode = selectedThemeMode,
-                        icon = Icons.Default.SettingsSuggest,
+                        icon = Icons.Outlined.SettingsSuggest,
                         onSelect = {
                             onThemeModeChange(it)
                             showAppearanceDialog = false
@@ -1252,11 +1338,11 @@ private fun ComplianceDialog(onDismiss: () -> Unit) {
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 ComplianceSectionTitle("权限用途")
-                ComplianceInfoRow(Icons.Default.AccessibilityNew, "无障碍服务", "仅执行你主动创建或启动的点击、长按、滑动脚本。")
-                ComplianceInfoRow(Icons.Default.TouchApp, "悬浮窗", "显示点位选择器、开始/停止按钮和按键悬浮控制。")
-                ComplianceInfoRow(Icons.Default.BatterySaver, "后台运行", "降低 HyperOS 清理服务导致脚本中断的概率。")
+                ComplianceInfoRow(Icons.Outlined.AccessibilityNew, "无障碍服务", "仅执行你主动创建或启动的点击、长按、滑动脚本。")
+                ComplianceInfoRow(Icons.Outlined.TouchApp, "悬浮窗", "显示点位选择器、开始/停止按钮和按键悬浮控制。")
+                ComplianceInfoRow(Icons.Outlined.BatterySaver, "后台运行", "降低 HyperOS 清理服务导致脚本中断的概率。")
                 ComplianceSectionTitle("数据处理")
-                ComplianceInfoRow(Icons.Default.Storage, "本机保存", "脚本与配置保存在本机，应用不上传脚本、屏幕内容、账号或支付数据。")
+                ComplianceInfoRow(Icons.Outlined.Storage, "本机保存", "脚本与配置保存在本机，应用不上传脚本、屏幕内容、账号或支付数据。")
             }
         },
         confirmButton = {
@@ -1323,9 +1409,9 @@ private fun PermissionStatusPanel(
                 else -> MaterialTheme.colorScheme.primary
             }
             val stateIcon = when {
-                !status.showStatus -> Icons.Default.Info
-                status.isWarning -> Icons.Default.ErrorOutline
-                else -> Icons.Default.CheckCircle
+                !status.showStatus -> Icons.Outlined.Info
+                status.isWarning -> Icons.Outlined.ErrorOutline
+                else -> Icons.Outlined.CheckCircle
             }
             ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                 ListItem(
