@@ -923,6 +923,18 @@ private fun MineTabContent(
     onThemeModeChange: (AppThemeMode) -> Unit,
     onOpenCompliance: () -> Unit
 ) {
+    val context = LocalContext.current
+    val versionLabel = remember(context) {
+        val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+        val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            packageInfo.longVersionCode
+        } else {
+            @Suppress("DEPRECATION")
+            packageInfo.versionCode.toLong()
+        }
+        "版本 ${packageInfo.versionName} ($versionCode)"
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -988,6 +1000,16 @@ private fun MineTabContent(
             Spacer(modifier = Modifier.width(8.dp))
             Text("打开应用设置")
         }
+
+        Text(
+            text = versionLabel,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
 
         Spacer(modifier = Modifier.height(12.dp))
     }
